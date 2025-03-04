@@ -14,3 +14,9 @@ export const ConditionGuard = {
 } as const;
 
 export type ConditionGuard = (typeof ConditionGuard)[keyof typeof ConditionGuard];
+
+export const UserStatus = {
+  Active: 'ACTIVE',
+  Inactive: 'INACTIVE',
+  Blocked: 'BLOCKED',
+} as const;
