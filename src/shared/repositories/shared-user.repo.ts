@@ -3,7 +3,7 @@ import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
 @Injectable()
-export class SharedUserRepsitory {
+export class SharedUserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findUnique(uniqueObject: { email: UserType['email'] } | { id: UserType['id'] }): Promise<UserType | null> {

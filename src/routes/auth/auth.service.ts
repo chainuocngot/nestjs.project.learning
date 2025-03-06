@@ -3,12 +3,13 @@ import { RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
 import { RolesService } from 'src/routes/auth/roles.service';
 import { generateOTP, isUniqueConstrainPrismaError } from 'src/shared/helpers';
-import { SharedUserRepsitory } from 'src/shared/repositories/shared-user.repo';
+import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo';
 import { HashingService } from 'src/shared/services/hashing.service';
 import { addMilliseconds } from 'date-fns';
 import ms from 'ms';
 import envConfig from 'src/shared/config';
 import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant';
+import { EmailService } from 'src/shared/services/email.service';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +17,8 @@ export class AuthService {
     private readonly hashingService: HashingService,
     private readonly rolesService: RolesService,
     private readonly authRepository: AuthRepository,
-    private readonly sharedUser: SharedUserRepsitory,
+    private readonly sharedUser: SharedUserRepository,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(body: RegisterBodyType) {
@@ -93,6 +95,19 @@ export class AuthService {
     });
 
     //Send OTP to email
+    const { error } = await this.emailService.sendOTP({
+      email: body.email,
+      code,
+    });
+
+    if (error) {
+      throw new UnprocessableEntityException([
+        {
+          message: 'Send OTP code failed',
+          path: 'code',
+        },
+      ]);
+    }
 
     return verificationCode;
   }
