@@ -25,3 +25,5 @@ export const TypeOfVerificationCode = {
   Register: 'REGISTER',
   ForgotPassword: 'FORGOT_PASSWORD',
 } as const;
+
+export type TypeOfVerificationCodeType = (typeof TypeOfVerificationCode)[keyof typeof TypeOfVerificationCode];

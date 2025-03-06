@@ -8,6 +8,7 @@ import { HashingService } from 'src/shared/services/hashing.service';
 import { addMilliseconds } from 'date-fns';
 import ms from 'ms';
 import envConfig from 'src/shared/config';
+import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,30 @@ export class AuthService {
 
   async register(body: RegisterBodyType) {
     try {
+      const verificationCode = await this.authRepository.findUniqueVerificationCode({
+        email: body.email,
+        code: body.code,
+        type: TypeOfVerificationCode.Register,
+      });
+
+      if (!verificationCode) {
+        throw new UnprocessableEntityException([
+          {
+            message: 'OTP code is invalid',
+            path: 'code',
+          },
+        ]);
+      }
+
+      if (verificationCode.expiresAt < new Date()) {
+        throw new UnprocessableEntityException([
+          {
+            message: 'OTP code is expired',
+            path: 'code',
+          },
+        ]);
+      }
+
       const clientRoleId = await this.rolesService.getClientRoleId();
       const hashedPassword = await this.hashingService.hash(body.password);
       const user = await this.authRepository.createUser({
