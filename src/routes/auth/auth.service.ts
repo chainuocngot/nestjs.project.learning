@@ -1,5 +1,5 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model';
+import { LoginBodyType, RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
 import { RolesService } from 'src/routes/auth/roles.service';
 import { generateOTP, isUniqueConstrainPrismaError } from 'src/shared/helpers';
@@ -10,6 +10,8 @@ import ms from 'ms';
 import envConfig from 'src/shared/config';
 import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant';
 import { EmailService } from 'src/shared/services/email.service';
+import { TokenService } from 'src/shared/services/token.service';
+import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type';
 
 @Injectable()
 export class AuthService {
@@ -17,8 +19,9 @@ export class AuthService {
     private readonly hashingService: HashingService,
     private readonly rolesService: RolesService,
     private readonly authRepository: AuthRepository,
-    private readonly sharedUser: SharedUserRepository,
+    private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
+    private readonly tokenService: TokenService,
   ) {}
 
   async register(body: RegisterBodyType) {
@@ -73,7 +76,7 @@ export class AuthService {
   }
 
   async sendOTP(body: SendOTPBodyType) {
-    const user = await this.sharedUser.findUnique({
+    const user = await this.sharedUserRepository.findUnique({
       email: body.email,
     });
 
@@ -112,53 +115,73 @@ export class AuthService {
     return verificationCode;
   }
 
-  // async login(body: any) {
-  //   const user = await this.prismaService.user.findUnique({
-  //     where: {
-  //       email: body.email,
-  //     },
-  //   });
+  async login(body: LoginBodyType & { userAgent: string; ip: string }) {
+    const user = await this.authRepository.findUniqueUserIncludeRole({
+      email: body.email,
+    });
 
-  //   if (!user) {
-  //     throw new UnauthorizedException('Account is not exist');
-  //   }
+    if (!user) {
+      throw new UnprocessableEntityException([
+        {
+          message: "Email doesn't exist",
+          path: 'email',
+        },
+      ]);
+    }
 
-  //   const isPasswordMatch = await this.hashingService.compare(body.password, user.password);
+    const isPasswordMatch = await this.hashingService.compare(body.password, user.password);
 
-  //   if (!isPasswordMatch) {
-  //     throw new UnprocessableEntityException([
-  //       {
-  //         field: 'password',
-  //         error: 'Password is incorrect',
-  //       },
-  //     ]);
-  //   }
+    if (!isPasswordMatch) {
+      throw new UnprocessableEntityException([
+        {
+          field: 'password',
+          error: 'Password is incorrect',
+        },
+      ]);
+    }
 
-  //   const tokens = await this.generateTokens({ userId: user.id });
+    const device = await this.authRepository.createDevice({
+      userId: user.id,
+      userAgent: body.userAgent,
+      ip: body.ip,
+    });
 
-  //   return tokens;
-  // }
+    const tokens = await this.generateTokens({
+      userId: user.id,
+      deviceId: device.id,
+      roleId: user.roleId,
+      roleName: user.role.name,
+    });
 
-  // async generateTokens(payload: { userId: number }) {
-  //   const [accessToken, refreshToken] = await Promise.all([
-  //     this.tokenService.signAccessToken(payload),
-  //     this.tokenService.signRefreshToken(payload),
-  //   ]);
+    return tokens;
+  }
 
-  //   const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken);
-  //   await this.prismaService.refreshToken.create({
-  //     data: {
-  //       token: refreshToken,
-  //       userId: payload.userId,
-  //       expiresAt: new Date(decodedRefreshToken.exp * 1000),
-  //     },
-  //   });
+  async generateTokens(payload: AccessTokenPayloadCreate) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.signAccessToken({
+        userId: payload.userId,
+        deviceId: payload.deviceId,
+        roleId: payload.roleId,
+        roleName: payload.roleName,
+      }),
+      this.tokenService.signRefreshToken({
+        userId: payload.userId,
+      }),
+    ]);
 
-  //   return {
-  //     accessToken,
-  //     refreshToken,
-  //   };
-  // }
+    const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken);
+    await this.authRepository.createRefreshToken({
+      token: refreshToken,
+      userId: payload.userId,
+      expiresAt: new Date(decodedRefreshToken.exp * 1000),
+      deviceId: payload.deviceId,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 
   // async refreshToken(refreshToken: string) {
   //   try {
