@@ -2,7 +2,7 @@ import { HttpException, Injectable, UnauthorizedException, UnprocessableEntityEx
 import { LoginBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
 import { RolesService } from 'src/routes/auth/roles.service';
-import { generateOTP, isUniqueConstrainPrismaError } from 'src/shared/helpers';
+import { generateOTP, isNotFoundPrismaError, isUniqueConstrainPrismaError } from 'src/shared/helpers';
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo';
 import { HashingService } from 'src/shared/services/hashing.service';
 import { addMilliseconds } from 'date-fns';
@@ -223,25 +223,27 @@ export class AuthService {
     }
   }
 
-  // async logout(refreshToken: string) {
-  //   try {
-  //     await this.tokenService.verifyRefreshToken(refreshToken);
+  async logout(refreshToken: string) {
+    try {
+      await this.tokenService.verifyRefreshToken(refreshToken);
 
-  //     await this.prismaService.refreshToken.delete({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     });
+      const deletedRefreshToken = await this.authRepository.deleteRefreshToken({
+        token: refreshToken,
+      });
 
-  //     return {
-  //       message: 'Logout successfully',
-  //     };
-  //   } catch (error) {
-  //     if (isNotFoundPrismaError(error)) {
-  //       throw new UnauthorizedException('Refresh token has been revoked');
-  //     }
+      await this.authRepository.updateDevice(deletedRefreshToken.deviceId, {
+        isActive: false,
+      });
 
-  //     throw new UnauthorizedException();
-  //   }
-  // }
+      return {
+        message: 'Logout successfully',
+      };
+    } catch (error) {
+      if (isNotFoundPrismaError(error)) {
+        throw new UnauthorizedException('Refresh token has been revoked');
+      }
+
+      throw new UnauthorizedException();
+    }
+  }
 }
