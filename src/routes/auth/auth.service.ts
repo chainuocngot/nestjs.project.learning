@@ -1,5 +1,5 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { LoginBodyType, RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model';
+import { HttpException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { LoginBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
 import { RolesService } from 'src/routes/auth/roles.service';
 import { generateOTP, isUniqueConstrainPrismaError } from 'src/shared/helpers';
@@ -183,31 +183,45 @@ export class AuthService {
     };
   }
 
-  // async refreshToken(refreshToken: string) {
-  //   try {
-  //     const { userId } = await this.tokenService.verifyRefreshToken(refreshToken);
+  async refreshToken(body: RefreshTokenBodyType & { userAgent: string; ip: string }) {
+    try {
+      const { userId } = await this.tokenService.verifyRefreshToken(body.refreshToken);
 
-  //     await this.prismaService.refreshToken.findUniqueOrThrow({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     });
+      const refreshTokenInDb = await this.authRepository.findUniqueRefreshTokenIncludeUserRole({
+        token: body.refreshToken,
+      });
 
-  //     await this.prismaService.refreshToken.delete({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     });
+      if (!refreshTokenInDb) {
+        throw new UnauthorizedException('Refresh token has been revoked');
+      }
 
-  //     return await this.generateTokens({ userId });
-  //   } catch (error) {
-  //     if (isNotFoundPrismaError(error)) {
-  //       throw new UnauthorizedException('Refresh token has been revoked');
-  //     }
+      const $updateDevice = this.authRepository.updateDevice(refreshTokenInDb.deviceId, {
+        ip: body.ip,
+        userAgent: body.userAgent,
+      });
 
-  //     throw new UnauthorizedException();
-  //   }
-  // }
+      const $deleteRefreshToken = this.authRepository.deleteRefreshToken({
+        token: body.refreshToken,
+      });
+
+      const $tokens = this.generateTokens({
+        userId,
+        roleId: refreshTokenInDb.user.roleId,
+        roleName: refreshTokenInDb.user.role.name,
+        deviceId: refreshTokenInDb.deviceId,
+      });
+
+      const [, , tokens] = await Promise.all([$updateDevice, $deleteRefreshToken, $tokens]);
+
+      return tokens;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new UnauthorizedException();
+    }
+  }
 
   // async logout(refreshToken: string) {
   //   try {
