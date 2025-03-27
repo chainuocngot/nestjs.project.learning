@@ -1,4 +1,4 @@
-import { HttpException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { LoginBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
 import { RolesService } from 'src/routes/auth/roles.service';
@@ -12,6 +12,16 @@ import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant';
 import { EmailService } from 'src/shared/services/email.service';
 import { TokenService } from 'src/shared/services/token.service';
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type';
+import {
+  EmailAlreadyExistsException,
+  EmailNotFoundException,
+  FailedToSendOTPException,
+  InvalidOTPException,
+  InvalidPasswordException,
+  OTPExpiredException,
+  RefreshTokenAlreadyUsedException,
+  UnauthorizedAccessException,
+} from 'src/routes/auth/error.model';
 
 @Injectable()
 export class AuthService {
@@ -33,21 +43,11 @@ export class AuthService {
       });
 
       if (!verificationCode) {
-        throw new UnprocessableEntityException([
-          {
-            message: 'OTP code is invalid',
-            path: 'code',
-          },
-        ]);
+        throw InvalidOTPException;
       }
 
       if (verificationCode.expiresAt < new Date()) {
-        throw new UnprocessableEntityException([
-          {
-            message: 'OTP code is expired',
-            path: 'code',
-          },
-        ]);
+        throw OTPExpiredException;
       }
 
       const clientRoleId = await this.rolesService.getClientRoleId();
@@ -63,12 +63,7 @@ export class AuthService {
       return user;
     } catch (error) {
       if (isUniqueConstrainPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: 'Email already exists',
-            path: 'email',
-          },
-        ]);
+        throw EmailAlreadyExistsException;
       }
 
       throw error;
@@ -81,12 +76,7 @@ export class AuthService {
     });
 
     if (user) {
-      throw new UnprocessableEntityException([
-        {
-          message: 'Email already exists',
-          path: 'email',
-        },
-      ]);
+      throw EmailAlreadyExistsException;
     }
 
     const code = generateOTP();
@@ -104,12 +94,7 @@ export class AuthService {
     });
 
     if (error) {
-      throw new UnprocessableEntityException([
-        {
-          message: 'Send OTP code failed',
-          path: 'code',
-        },
-      ]);
+      throw FailedToSendOTPException;
     }
 
     return {
@@ -123,23 +108,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnprocessableEntityException([
-        {
-          message: "Email doesn't exist",
-          path: 'email',
-        },
-      ]);
+      throw EmailNotFoundException;
     }
 
     const isPasswordMatch = await this.hashingService.compare(body.password, user.password);
 
     if (!isPasswordMatch) {
-      throw new UnprocessableEntityException([
-        {
-          field: 'password',
-          error: 'Password is incorrect',
-        },
-      ]);
+      throw InvalidPasswordException;
     }
 
     const device = await this.authRepository.createDevice({
@@ -194,7 +169,7 @@ export class AuthService {
       });
 
       if (!refreshTokenInDb) {
-        throw new UnauthorizedException('Refresh token has been revoked');
+        throw RefreshTokenAlreadyUsedException;
       }
 
       const $updateDevice = this.authRepository.updateDevice(refreshTokenInDb.deviceId, {
@@ -221,7 +196,7 @@ export class AuthService {
         throw error;
       }
 
-      throw new UnauthorizedException();
+      throw UnauthorizedAccessException;
     }
   }
 
@@ -242,10 +217,10 @@ export class AuthService {
       };
     } catch (error) {
       if (isNotFoundPrismaError(error)) {
-        throw new UnauthorizedException('Refresh token has been revoked');
+        throw RefreshTokenAlreadyUsedException;
       }
 
-      throw new UnauthorizedException();
+      throw UnauthorizedAccessException;
     }
   }
 }
