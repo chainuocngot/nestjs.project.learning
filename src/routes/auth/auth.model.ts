@@ -50,7 +50,22 @@ export const LoginBodySchema = UserSchema.pick({
     totpCode: z.string().length(6).optional(), //2FA code
     code: z.string().length(6).optional(), //Email OTP code
   })
-  .strict();
+  .strict()
+  .superRefine(({ totpCode, code }, ctx) => {
+    if (totpCode !== undefined && code !== undefined) {
+      const message = 'You must provide 2FA code or OTP code. Can not provide both';
+      ctx.addIssue({
+        code: 'custom',
+        message,
+        path: ['totpCode'],
+      });
+      ctx.addIssue({
+        code: 'custom',
+        message,
+        path: ['code'],
+      });
+    }
+  });
 
 export const LoginResSchema = z.object({
   accessToken: z.string(),
@@ -134,14 +149,14 @@ export const Disable2FABodySchema = z
     if ((totpCode !== undefined) !== (code !== undefined)) {
       const message = 'You must provide 2FA code or OTP code. Can not provide both';
       ctx.addIssue({
-        path: ['totpCode'],
-        message,
         code: 'custom',
+        message,
+        path: ['totpCode'],
       });
       ctx.addIssue({
-        path: ['code'],
-        message,
         code: 'custom',
+        message,
+        path: ['code'],
       });
     }
   });
