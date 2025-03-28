@@ -26,8 +26,10 @@ import {
   InvalidPasswordException,
   OTPExpiredException,
   RefreshTokenAlreadyUsedException,
+  TOTPAlreadyEnabledException,
   UnauthorizedAccessException,
 } from 'src/routes/auth/error.model';
+import { TwoFAService } from 'src/shared/services/2fa.service';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +40,7 @@ export class AuthService {
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
     private readonly tokenService: TokenService,
+    private readonly twoFAService: TwoFAService,
   ) {}
 
   async validateVerificationCode({
@@ -298,6 +301,36 @@ export class AuthService {
 
     return {
       message: 'Change passsword success',
+    };
+  }
+
+  async setup2FA(userId: number) {
+    const user = await this.sharedUserRepository.findUnique({
+      id: userId,
+    });
+
+    if (!user) {
+      throw EmailNotFoundException;
+    }
+
+    if (user.totpSecret) {
+      throw TOTPAlreadyEnabledException;
+    }
+
+    const { secret, uri } = this.twoFAService.generateTOTPSecret(user.email);
+
+    await this.authRepository.updateUser(
+      {
+        id: userId,
+      },
+      {
+        totpSecret: secret,
+      },
+    );
+
+    return {
+      secret,
+      uri,
     };
   }
 }

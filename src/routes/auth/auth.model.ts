@@ -147,8 +147,8 @@ export const Disable2FABodySchema = z
   });
 
 export const Setup2FAResSchema = z.object({
-  serect: z.string(),
-  url: z.string(),
+  secret: z.string(),
+  uri: z.string(),
 });
 
 export type RegisterBodyType = z.infer<typeof RegisterBodySchema>;

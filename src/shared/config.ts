@@ -14,6 +14,8 @@ if (!fs.existsSync(path.resolve('.env'))) {
 }
 
 const ConfigSchema = z.object({
+  APP_NAME: z.string(),
+
   DATABASE_URL: z.string(),
   ACCESS_TOKEN_SECRET: z.string(),
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
