@@ -50,9 +50,11 @@ export class AuthService {
     type: TypeOfVerificationCodeType;
   }) {
     const verificationCode = await this.authRepository.findUniqueVerificationCode({
-      email,
-      code,
-      type,
+      email_code_type: {
+        email,
+        code,
+        type,
+      },
     });
 
     if (!verificationCode) {
@@ -85,9 +87,11 @@ export class AuthService {
           roleId: clientRoleId,
         }),
         this.authRepository.deleteVerificationCode({
-          email: body.email,
-          code: body.code,
-          type: TypeOfVerificationCode.Register,
+          email_code_type: {
+            email: body.email,
+            code: body.code,
+            type: TypeOfVerificationCode.Register,
+          },
         }),
       ]);
 
@@ -284,9 +288,11 @@ export class AuthService {
         },
       ),
       this.authRepository.deleteVerificationCode({
-        email: body.email,
-        code: body.code,
-        type: TypeOfVerificationCode.ForgotPassword,
+        email_code_type: {
+          email: body.email,
+          code: body.code,
+          type: TypeOfVerificationCode.ForgotPassword,
+        },
       }),
     ]);
 

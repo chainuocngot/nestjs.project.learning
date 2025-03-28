@@ -45,7 +45,12 @@ export const SendOTPBodySchema = VerificationCodeSchema.pick({
 export const LoginBodySchema = UserSchema.pick({
   email: true,
   password: true,
-}).strict();
+})
+  .extend({
+    totpCode: z.string().length(6).optional(), //2FA code
+    code: z.string().length(6).optional(), //Email OTP code
+  })
+  .strict();
 
 export const LoginResSchema = z.object({
   accessToken: z.string(),
@@ -119,6 +124,33 @@ export const ForgotPasswordBodySchema = z
     }
   });
 
+export const Disable2FABodySchema = z
+  .object({
+    totpCode: z.string().length(6).optional(),
+    code: z.string().length(6).optional(),
+  })
+  .strict()
+  .superRefine(({ totpCode, code }, ctx) => {
+    if ((totpCode !== undefined) !== (code !== undefined)) {
+      const message = 'You must provide 2FA code or OTP code. Can not provide both';
+      ctx.addIssue({
+        path: ['totpCode'],
+        message,
+        code: 'custom',
+      });
+      ctx.addIssue({
+        path: ['code'],
+        message,
+        code: 'custom',
+      });
+    }
+  });
+
+export const Setup2FAResSchema = z.object({
+  serect: z.string(),
+  url: z.string(),
+});
+
 export type RegisterBodyType = z.infer<typeof RegisterBodySchema>;
 export type RegisterResType = z.infer<typeof RegisterResSchema>;
 export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>;
@@ -134,3 +166,5 @@ export type LogoutBodyType = z.infer<typeof LogoutBodySchema>;
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>;
 export type GetAuthorizationUrlResType = z.infer<typeof GetAuthorizationUrlResSchema>;
 export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>;
+export type Disable2FABodyType = z.infer<typeof Disable2FABodySchema>;
+export type Setup2FAResType = z.infer<typeof Setup2FAResSchema>;
