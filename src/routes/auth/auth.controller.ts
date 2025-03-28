@@ -2,6 +2,7 @@ import { Body, Controller, Get, Ip, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
+  Disable2FABodyDTO,
   ForgotPasswordBodyDTO,
   GetAuthorizationUrlResDTO,
   LoginBodyDTO,
@@ -109,5 +110,11 @@ export class AuthController {
   @ZodSerializerDto(Setup2FAResDTO)
   setup2FA(@Body() _: EmptyBodyDTO, @ActiveUser('userId') userId: number) {
     return this.authService.setup2FA(userId);
+  }
+
+  @Post('2fa/disable')
+  @ZodSerializerDto(MessageResDTO)
+  disable2FA(@Body() body: Disable2FABodyDTO, @ActiveUser('userId') userId: number) {
+    return this.authService.disable2FA(body, userId);
   }
 }

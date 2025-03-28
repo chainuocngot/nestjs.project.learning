@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import {
+  Disable2FABodyType,
   ForgotPasswordBodyType,
   LoginBodyType,
   RefreshTokenBodyType,
@@ -29,6 +30,7 @@ import {
   OTPExpiredException,
   RefreshTokenAlreadyUsedException,
   TOTPAlreadyEnabledException,
+  TOTPNotEnabledException,
   UnauthorizedAccessException,
 } from 'src/routes/auth/error.model';
 import { TwoFAService } from 'src/shared/services/2fa.service';
@@ -357,6 +359,51 @@ export class AuthService {
     return {
       secret,
       uri,
+    };
+  }
+
+  async disable2FA(body: Disable2FABodyType, userId: number) {
+    const user = await this.sharedUserRepository.findUnique({
+      id: userId,
+    });
+
+    if (!user) {
+      throw EmailNotFoundException;
+    }
+
+    if (!user.totpSecret) {
+      throw TOTPNotEnabledException;
+    }
+
+    if (body.totpCode) {
+      const isValid = this.twoFAService.verifyTOTP({
+        email: user.email,
+        secret: user.totpSecret,
+        token: body.totpCode,
+      });
+
+      if (!isValid) {
+        throw InvalidTOTPException;
+      }
+    } else if (body.code) {
+      await this.validateVerificationCode({
+        email: user.email,
+        code: body.code,
+        type: TypeOfVerificationCode.Disabled_2FA,
+      });
+    }
+
+    await this.authRepository.updateUser(
+      {
+        id: userId,
+      },
+      {
+        totpSecret: null,
+      },
+    );
+
+    return {
+      message: 'Disable TOTP success',
     };
   }
 }

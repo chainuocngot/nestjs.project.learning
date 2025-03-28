@@ -146,7 +146,7 @@ export const Disable2FABodySchema = z
   })
   .strict()
   .superRefine(({ totpCode, code }, ctx) => {
-    if ((totpCode !== undefined) !== (code !== undefined)) {
+    if ((totpCode !== undefined) === (code !== undefined)) {
       const message = 'You must provide 2FA code or OTP code. Can not provide both';
       ctx.addIssue({
         code: 'custom',

@@ -34,6 +34,6 @@ export class GetAuthorizationUrlResDTO extends createZodDto(GetAuthorizationUrlR
 
 export class ForgotPasswordBodyDTO extends createZodDto(ForgotPasswordBodySchema) {}
 
-export class Disable2FABodyTypeDTO extends createZodDto(Disable2FABodySchema) {}
+export class Disable2FABodyDTO extends createZodDto(Disable2FABodySchema) {}
 
 export class Setup2FAResDTO extends createZodDto(Setup2FAResSchema) {}
