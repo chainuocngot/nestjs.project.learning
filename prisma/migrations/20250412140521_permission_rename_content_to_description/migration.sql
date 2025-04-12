@@ -1,0 +1,1 @@
+ALTER TABLE "Permission" RENAME COLUMN "content" TO "description";
