@@ -176,6 +176,8 @@ model Permission {
   deletedAt   DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@index([deletedAt])
 }
 
 model Role {
