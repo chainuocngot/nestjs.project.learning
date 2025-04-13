@@ -11,6 +11,7 @@ export class LanguageService {
 
   async findAll() {
     const data = await this.languageRepository.findAll();
+
     return {
       data,
       totalItems: data.length,

@@ -28,4 +28,14 @@ export const TypeOfVerificationCode = {
   Disabled_2FA: 'DISABLE_2FA',
 } as const;
 
+export const HTTPMethod = {
+  Get: 'GET',
+  Post: 'POST',
+  Put: 'PUT',
+  Delete: 'DELETE',
+  Patch: 'PATCH',
+  Options: 'OPTIONS',
+  Head: 'HEAD',
+} as const;
+
 export type TypeOfVerificationCodeType = (typeof TypeOfVerificationCode)[keyof typeof TypeOfVerificationCode];
