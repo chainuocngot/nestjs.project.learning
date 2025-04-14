@@ -23,7 +23,6 @@ import {
   EmailNotFoundException,
   FailedToSendOTPException,
   InvalidOTPException,
-  InvalidPasswordException,
   InvalidTOTPAndCodeException,
   InvalidTOTPException,
   OTPExpiredException,
@@ -34,6 +33,7 @@ import {
 } from 'src/routes/auth/auth.error';
 import { TwoFAService } from 'src/shared/services/2fa.service';
 import { SharedRoleRepository } from 'src/shared/repositories/shared-role.repo';
+import { InvalidPasswordException } from 'src/shared/error';
 
 @Injectable()
 export class AuthService {

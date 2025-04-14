@@ -17,7 +17,7 @@ export const RegisterBodySchema = UserSchema.pick({
     if (password !== confirmPassword) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Password and confirm password must match',
+        message: 'Error.ConfirmPasswordNotMatch',
         path: ['confirmPassword'],
       });
     }
@@ -121,7 +121,7 @@ export const ForgotPasswordBodySchema = z
     if (newPassword !== confirmNewPassword) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Password and confirm password must match',
+        message: 'Error.ConfirmPasswordNotMatch',
         path: ['confirmNewPassword'],
       });
     }
