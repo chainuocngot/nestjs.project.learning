@@ -55,7 +55,7 @@ export class LanguageService {
 
   async delete(languageId: LanguageType['id']) {
     try {
-      await this.languageRepository.delete(languageId, true);
+      await this.languageRepository.delete(languageId, false);
 
       return {
         message: 'Delete successfully',

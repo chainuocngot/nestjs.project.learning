@@ -70,7 +70,7 @@ export class PermissionService {
 
   async delete(permissionId: PermissionType['id'], deletedById: number) {
     try {
-      await this.permissionRepository.delete({ permissionId, deletedById }, true);
+      await this.permissionRepository.delete({ permissionId, deletedById }, false);
 
       return {
         message: 'Delete successfully',
