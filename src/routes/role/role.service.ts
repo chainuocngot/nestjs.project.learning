@@ -12,6 +12,19 @@ import { RoleType } from 'src/shared/models/shared-role.model';
 export class RoleService {
   constructor(private readonly roleRepository: RoleRepository) {}
 
+  private async verifyRole(roleId: number) {
+    const role = await this.roleRepository.findById(roleId);
+    if (!role) {
+      throw NotFoundRecordException;
+    }
+
+    const baseRoles: string[] = [RoleName.Admin, RoleName.Client, RoleName.Seller];
+
+    if (baseRoles.includes(role.name)) {
+      throw ProhibitedActionOnBasedRoleException;
+    }
+  }
+
   findAll(pagination: PaginationQueryType) {
     return this.roleRepository.findAll(pagination);
   }
@@ -40,15 +53,7 @@ export class RoleService {
 
   async update({ body, id, updatedById }: { body: UpdateRoleBodyType; id: RoleType['id']; updatedById: number }) {
     try {
-      const role = await this.roleRepository.findById(id);
-      if (!role) {
-        throw NotFoundRecordException;
-      }
-
-      if (role.name === RoleName.Admin) {
-        throw ProhibitedActionOnBasedRoleException;
-      }
-
+      await this.verifyRole(id);
       const updatedRole = await this.roleRepository.update({ body, id, updatedById });
 
       return updatedRole;
@@ -69,16 +74,7 @@ export class RoleService {
 
   async delete(roleId: RoleType['id'], deletedById: number) {
     try {
-      const role = await this.roleRepository.findById(roleId);
-      if (!role) {
-        throw NotFoundRecordException;
-      }
-
-      const baseRoles: string[] = [RoleName.Admin, RoleName.Client, RoleName.Seller];
-      if (baseRoles.includes(role.name)) {
-        throw ProhibitedActionOnBasedRoleException;
-      }
-
+      await this.verifyRole(roleId);
       await this.roleRepository.delete(
         {
           roleId,
