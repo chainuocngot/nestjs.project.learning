@@ -15,7 +15,7 @@ export class SharedRoleRepository {
       .$queryRaw`SELECT * FROM "Role" WHERE name = ${roleName} AND "deletedAt" IS NULL LIMIT 1;`.then(
       (res: RoleType[]) => {
         if (res.length === 0) {
-          throw new Error('Client role not found');
+          throw new Error('Role not found');
         } else {
           return res[0];
         }
