@@ -22,16 +22,19 @@ async function bootstrap() {
     path: string;
     method: (typeof HTTPMethod)[keyof typeof HTTPMethod];
     name: string;
+    module: string;
   }[] = router.stack
     .map((layer) => {
       if (layer.route) {
         const path = layer.route?.path;
         const method = String(layer.route?.stack[0].method).toUpperCase();
+        const module = String(path.split('/')[1]).toUpperCase();
 
         return {
           path,
           method,
           name: `${method} ${path}`,
+          module,
         };
       }
     })
