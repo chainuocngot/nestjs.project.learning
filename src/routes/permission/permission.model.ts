@@ -1,19 +1,5 @@
-import { HTTPMethod } from 'src/shared/constants/auth.constant';
+import { PermissionSchema } from 'src/shared/models/shared-permission.model';
 import { z } from 'zod';
-
-export const PermissionSchema = z.object({
-  id: z.number(),
-  name: z.string().max(500),
-  description: z.string().max(500),
-  path: z.string().max(1000),
-  method: z.nativeEnum(HTTPMethod),
-  createdById: z.number().nullable(),
-  updatedById: z.number().nullable(),
-  deletedById: z.number().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
 
 export const GetPermissionsResSchema = z.object({
   data: z.array(PermissionSchema),
@@ -37,11 +23,16 @@ export const CreatePermissionBodySchema = PermissionSchema.pick({
   method: true,
 }).strict();
 
+export const CreatePermissionResSchema = PermissionSchema;
+
 export const UpdatePermissionBodySchema = CreatePermissionBodySchema;
 
-export type PermissionType = z.infer<typeof PermissionSchema>;
+export const UpdatePermissionResSchema = PermissionSchema;
+
 export type GetPermissionsResType = z.infer<typeof GetPermissionsResSchema>;
 export type GetPermissionParamsType = z.infer<typeof GetPermissionParamsSchema>;
 export type GetPermissionDetailResType = z.infer<typeof GetPermissionDetailResSchema>;
 export type CreatePermissionBodyType = z.infer<typeof CreatePermissionBodySchema>;
+export type CreatePermissionResType = z.infer<typeof CreatePermissionResSchema>;
 export type UpdatePermissionBodyType = z.infer<typeof UpdatePermissionBodySchema>;
+export type UpdatePermissionResType = z.infer<typeof UpdatePermissionResSchema>;

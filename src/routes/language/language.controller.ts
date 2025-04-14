@@ -2,10 +2,12 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   CreateLanguageBodyDTO,
+  CreateLanguageResDTO,
   GetLanguageDetailResDTO,
   GetLanguageParamsDTO,
   GetLanguagesResDTO,
   UpdateLanguageBodyDTO,
+  UpdateLanguageResDTO,
 } from 'src/routes/language/language.dto';
 import { LanguageService } from 'src/routes/language/language.service';
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator';
@@ -28,13 +30,13 @@ export class LanguageController {
   }
 
   @Post()
-  @ZodSerializerDto(GetLanguageDetailResDTO)
+  @ZodSerializerDto(CreateLanguageResDTO)
   create(@Body() body: CreateLanguageBodyDTO, @ActiveUser('userId') createdById: number) {
     return this.languageService.create(body, createdById);
   }
 
   @Put(':languageId')
-  @ZodSerializerDto(GetLanguageDetailResDTO)
+  @ZodSerializerDto(UpdateLanguageResDTO)
   update(
     @Body() body: UpdateLanguageBodyDTO,
     @Param() params: GetLanguageParamsDTO,

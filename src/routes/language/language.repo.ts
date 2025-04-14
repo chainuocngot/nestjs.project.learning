@@ -32,7 +32,15 @@ export class LanguageRepository {
     });
   }
 
-  update({ body, id, updatedById }: { body: UpdateLanguageBodyType; id: string; updatedById: number }) {
+  update({
+    body,
+    id,
+    updatedById,
+  }: {
+    body: UpdateLanguageBodyType;
+    id: string;
+    updatedById: number;
+  }): Promise<LanguageType> {
     return this.prismaService.language.update({
       data: {
         ...body,
@@ -45,7 +53,7 @@ export class LanguageRepository {
     });
   }
 
-  delete(languageId: LanguageType['id'], isHard?: boolean) {
+  delete(languageId: LanguageType['id'], isHard?: boolean): Promise<LanguageType> {
     return isHard
       ? this.prismaService.language.delete({
           where: {

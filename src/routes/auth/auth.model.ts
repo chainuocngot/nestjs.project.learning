@@ -98,18 +98,6 @@ export const DeviceSchema = z.object({
   isActive: z.boolean(),
 });
 
-export const RoleSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  description: z.string(),
-  isActive: z.boolean(),
-  createdById: z.number().nullable(),
-  updatedById: z.number().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
 export const LogoutBodySchema = RefreshTokenBodySchema;
 
 export const GoogleAuthStateSchema = DeviceSchema.pick({
@@ -176,7 +164,6 @@ export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>;
 export type RefreshTokenBodyType = z.infer<typeof RefreshTokenBodySchema>;
 export type RefreshTokenResType = z.infer<typeof RefreshTokenResSchema>;
 export type DeviceType = z.infer<typeof DeviceSchema>;
-export type RoleType = z.infer<typeof RoleSchema>;
 export type LogoutBodyType = z.infer<typeof LogoutBodySchema>;
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>;
 export type GetAuthorizationUrlResType = z.infer<typeof GetAuthorizationUrlResSchema>;

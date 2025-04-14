@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PermissionAlreadyExistsException } from 'src/routes/permission/permission.error';
-import {
-  CreatePermissionBodyType,
-  PermissionType,
-  UpdatePermissionBodyType,
-} from 'src/routes/permission/permission.model';
+import { CreatePermissionBodyType, UpdatePermissionBodyType } from 'src/routes/permission/permission.model';
 import { PermissionRepository } from 'src/routes/permission/permission.repo';
 import { NotFoundRecordException } from 'src/shared/error';
 import { isNotFoundPrismaError, isUniqueConstrainPrismaError } from 'src/shared/helpers';
 import { PaginationQueryType } from 'src/shared/models/request.model';
+import { PermissionType } from 'src/shared/models/shared-permission.model';
 
 @Injectable()
 export class PermissionService {
@@ -30,7 +27,9 @@ export class PermissionService {
 
   async create(body: CreatePermissionBodyType, createdById: number) {
     try {
-      return await this.permissionRepository.create(body, createdById);
+      const permission = await this.permissionRepository.create(body, createdById);
+
+      return permission;
     } catch (error) {
       if (isUniqueConstrainPrismaError(error)) {
         throw PermissionAlreadyExistsException;
@@ -71,7 +70,11 @@ export class PermissionService {
 
   async delete(permissionId: PermissionType['id'], deletedById: number) {
     try {
-      return await this.permissionRepository.delete({ permissionId, deletedById, isHard: true });
+      await this.permissionRepository.delete({ permissionId, deletedById }, true);
+
+      return {
+        message: 'Delete successfully',
+      };
     } catch (error) {
       if (isNotFoundPrismaError(error)) {
         throw NotFoundRecordException;

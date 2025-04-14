@@ -2,10 +2,12 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   CreatePermissionBodyDTO,
+  CreatePermissionResDTO,
   GetPermissionDetailResDTO,
   GetPermissionParamsDTO,
   GetPermissionsResDTO,
   UpdatePermissionBodyDTO,
+  UpdatePermissionResDTO,
 } from 'src/routes/permission/permission.dto';
 import { PermissionService } from 'src/routes/permission/permission.service';
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator';
@@ -29,13 +31,13 @@ export class PermissionController {
   }
 
   @Post()
-  @ZodSerializerDto(GetPermissionDetailResDTO)
+  @ZodSerializerDto(CreatePermissionResDTO)
   create(@Body() body: CreatePermissionBodyDTO, @ActiveUser('userId') createdById: number) {
     return this.permissionService.create(body, createdById);
   }
 
   @Put(':permissionId')
-  @ZodSerializerDto(GetPermissionDetailResDTO)
+  @ZodSerializerDto(UpdatePermissionResDTO)
   update(
     @Body() body: UpdatePermissionBodyDTO,
     @Param() params: GetPermissionParamsDTO,
