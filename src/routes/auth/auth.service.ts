@@ -115,7 +115,6 @@ export class AuthService {
   async sendOTP(body: SendOTPBodyType) {
     const user = await this.sharedUserRepository.findUnique({
       email: body.email,
-      deletedAt: null,
     });
 
     if (body.type === TypeOfVerificationCode.Register && user) {
@@ -297,7 +296,6 @@ export class AuthService {
   async forgotPassword(body: ForgotPasswordBodyType) {
     const user = await this.sharedUserRepository.findUnique({
       email: body.email,
-      deletedAt: null,
     });
 
     if (!user) {
@@ -315,7 +313,6 @@ export class AuthService {
       this.sharedUserRepository.update(
         {
           id: user.id,
-          deletedAt: null,
         },
         {
           password: hashedPassword,
@@ -339,7 +336,6 @@ export class AuthService {
   async setup2FA(userId: number) {
     const user = await this.sharedUserRepository.findUnique({
       id: userId,
-      deletedAt: null,
     });
 
     if (!user) {
@@ -355,7 +351,6 @@ export class AuthService {
     await this.sharedUserRepository.update(
       {
         id: userId,
-        deletedAt: null,
       },
       {
         totpSecret: secret,
@@ -372,7 +367,6 @@ export class AuthService {
   async disable2FA(body: Disable2FABodyType, userId: number) {
     const user = await this.sharedUserRepository.findUnique({
       id: userId,
-      deletedAt: null,
     });
 
     if (!user) {
@@ -404,7 +398,6 @@ export class AuthService {
     await this.sharedUserRepository.update(
       {
         id: userId,
-        deletedAt: null,
       },
       {
         totpSecret: null,

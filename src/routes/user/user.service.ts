@@ -44,7 +44,6 @@ export class UserService {
   private async getRoleIdByUserId(userId: UserType['id']) {
     const user = await this.sharedUserRepository.findUnique({
       id: userId,
-      deletedAt: null,
     });
 
     if (!user) {
@@ -67,7 +66,6 @@ export class UserService {
   async findById(userId: UserType['id']) {
     const user = await this.sharedUserRepository.findUniqueIncludeRolePermissions({
       id: userId,
-      deletedAt: null,
     });
 
     if (!user) {
@@ -134,7 +132,6 @@ export class UserService {
       const updatedUser = await this.sharedUserRepository.update(
         {
           id,
-          deletedAt: null,
         },
         {
           ...body,
