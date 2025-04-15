@@ -2,7 +2,7 @@ import { PermissionSchema } from 'src/shared/models/shared-permission.model';
 import { RoleSchema } from 'src/shared/models/shared-role.model';
 import { z } from 'zod';
 
-export const RoleWithPermissionsSchema = RoleSchema.extend({
+export const RolePermissionsSchema = RoleSchema.extend({
   permissions: z.array(PermissionSchema),
 });
 
@@ -20,7 +20,7 @@ export const GetRoleParamsSchema = z
   })
   .strict();
 
-export const GetRoleDetailResSchema = RoleWithPermissionsSchema;
+export const GetRoleDetailResSchema = RolePermissionsSchema;
 
 export const CreateRoleBodySchema = RoleSchema.pick({
   name: true,
@@ -42,7 +42,7 @@ export const UpdateRoleBodySchema = RoleSchema.pick({
 
 export const UpdateRoleResSchema = RoleSchema;
 
-export type RoleWithPermissionsType = z.infer<typeof RoleWithPermissionsSchema>;
+export type RoleWithPermissionsType = z.infer<typeof RolePermissionsSchema>;
 export type GetRolesResType = z.infer<typeof GetRolesResSchema>;
 export type GetRoleParamsType = z.infer<typeof GetRoleParamsSchema>;
 export type GetRoleDetailResType = z.infer<typeof GetRoleDetailResSchema>;

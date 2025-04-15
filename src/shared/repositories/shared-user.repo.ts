@@ -4,7 +4,7 @@ import { RoleType } from 'src/shared/models/shared-role.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
-type UserInludeRolePermissionsType = UserType & {
+type UserInludeRoleWithPermissionsType = UserType & {
   role: RoleType & {
     permissions: PermissionType[];
   };
@@ -29,7 +29,7 @@ export class SharedUserRepository {
     });
   }
 
-  findUniqueIncludeRolePermissions(where: WhereUniqueUserType): Promise<UserInludeRolePermissionsType | null> {
+  findUniqueIncludeRolePermissions(where: WhereUniqueUserType): Promise<UserInludeRoleWithPermissionsType | null> {
     return this.prismaService.user.findUnique({
       where,
       include: {
