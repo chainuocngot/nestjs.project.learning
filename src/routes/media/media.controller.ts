@@ -13,7 +13,9 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import { ZodSerializerDto } from 'nestjs-zod';
 import path from 'path';
+import { UploadFileResDTO, UploadPresignedFileBodyDTO, UploadPresignedFileResDTO } from 'src/routes/media/media.dto';
 import { MediaService } from 'src/routes/media/media.service';
 import { ParseFilePipeWithUnlink } from 'src/routes/media/parse-file-pipe-with-unlink.pipe';
 import { UPLOAD_DIR } from 'src/shared/constants/dir.constant';
@@ -24,6 +26,7 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Post('images/upload')
+  @ZodSerializerDto(UploadFileResDTO)
   @UseInterceptors(
     FilesInterceptor('files', 3, {
       limits: {
@@ -58,8 +61,9 @@ export class MediaController {
   }
 
   @Post('images/upload/presigned-url')
+  @ZodSerializerDto(UploadPresignedFileResDTO)
   @IsPublic()
-  createPresignedUrl(@Body() body: { filename: string }) {
+  createPresignedUrl(@Body() body: UploadPresignedFileBodyDTO) {
     return this.mediaService.getPresignedUrl(body);
   }
 }
