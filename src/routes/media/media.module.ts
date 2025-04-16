@@ -3,11 +3,9 @@ import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
-import path from 'path';
 import { generateRandomFilename } from 'src/shared/helpers';
 import { existsSync, mkdirSync } from 'fs';
-
-const UPLOAD_DIR = path.resolve('upload');
+import { UPLOAD_DIR } from 'src/shared/constants/dir.constant';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
