@@ -4,7 +4,6 @@ import {
   CategoryTranslationAlreadyExistsException,
 } from 'src/routes/category/category-translation/category-translation.error';
 import {
-  CategoryTranslationType,
   CreateCategoryTranslationBodyType,
   UpdateCategoryTranslationBodyType,
 } from 'src/routes/category/category-translation/category-translation.model';
@@ -16,6 +15,7 @@ import {
   isUniqueConstrainPrismaError,
 } from 'src/shared/helpers';
 import { PaginationQueryType } from 'src/shared/models/request.model';
+import { CategoryTranslationType } from 'src/shared/models/shared-category-translation';
 import { UserType } from 'src/shared/models/shared-user.model';
 
 @Injectable()

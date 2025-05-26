@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CategoryTranslationType,
   CreateCategoryTranslationBodyType,
   GetCategoryTranslationDetailResType,
   GetCategoryTranslationsType,
   UpdateCategoryTranslationBodyType,
 } from 'src/routes/category/category-translation/category-translation.model';
 import { PaginationQueryType } from 'src/shared/models/request.model';
+import { CategoryTranslationType } from 'src/shared/models/shared-category-translation';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 

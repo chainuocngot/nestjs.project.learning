@@ -4,7 +4,6 @@ import {
   BrandTranslationAlreadyExistsException,
 } from 'src/routes/brand/brand-translation/brand-translation.error';
 import {
-  BrandTranslationType,
   CreateBrandTranslationBodyType,
   UpdateBrandTranslationBodyType,
 } from 'src/routes/brand/brand-translation/brand-translation.model';
@@ -16,6 +15,7 @@ import {
   isUniqueConstrainPrismaError,
 } from 'src/shared/helpers';
 import { PaginationQueryType } from 'src/shared/models/request.model';
+import { BrandTranslationType } from 'src/shared/models/shared-brand-translation';
 import { UserType } from 'src/shared/models/shared-user.model';
 
 @Injectable()

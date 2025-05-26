@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CategoryType,
-  CategoryWithTranslationType,
   CreateCategoryBodyType,
   GetCategoriesResType,
   UpdateCategoryBodyType,
 } from 'src/routes/category/category.model';
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/common.constant';
 import { PaginationQueryType } from 'src/shared/models/request.model';
+import { CategoryType, CategoryWithTranslationType } from 'src/shared/models/shared-category';
 import { LanguageType } from 'src/shared/models/shared-language.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';

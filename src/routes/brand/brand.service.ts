@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
-import { BrandType, CreateBrandBodyType, UpdateBrandBodyType } from 'src/routes/brand/brand.model';
+import { CreateBrandBodyType, UpdateBrandBodyType } from 'src/routes/brand/brand.model';
 import { BrandRepository } from 'src/routes/brand/brand.repo';
 import { NotFoundRecordException } from 'src/shared/error';
 import { isNotFoundPrismaError } from 'src/shared/helpers';
 import { PaginationQueryType } from 'src/shared/models/request.model';
+import { BrandType } from 'src/shared/models/shared-brand.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 
 @Injectable()

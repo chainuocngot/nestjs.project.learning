@@ -1,25 +1,6 @@
-import { CategoryTranslationSchema } from 'src/routes/category/category-translation/category-translation.model';
 import { PaginationQuerySchema } from 'src/shared/models/request.model';
+import { CategorySchema, CategoryWithTranslationSchema } from 'src/shared/models/shared-category';
 import { z } from 'zod';
-
-export const CategorySchema = z.object({
-  id: z.number(),
-  name: z.string().max(500),
-  logo: z.string().max(1000).nullable(),
-  parentCategoryId: z.number().nullable(),
-
-  createdById: z.number().nullable(),
-  updatedById: z.number().nullable(),
-  deletedById: z.number().nullable(),
-
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const CategoryWithTranslationSchema = CategorySchema.extend({
-  categoryTranslations: z.array(CategoryTranslationSchema),
-});
 
 export const GetCategoriesParamsSchema = PaginationQuerySchema.extend({
   parentCategoryId: z.coerce.number().int().positive().optional(),
@@ -53,8 +34,6 @@ export const UpdateCategoryBodySchema = CreateCategoryBodySchema;
 
 export const UpdateCategoryResSchema = CategorySchema;
 
-export type CategoryType = z.infer<typeof CategorySchema>;
-export type CategoryWithTranslationType = z.infer<typeof CategoryWithTranslationSchema>;
 export type GetCategoriesParamsType = z.infer<typeof GetCategoriesParamsSchema>;
 export type GetCategoriesResType = z.infer<typeof GetCategoriesResSchema>;
 export type GetCategoryParamsType = z.infer<typeof GetCategoryParamsSchema>;

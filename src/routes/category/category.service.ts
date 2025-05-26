@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 import {
-  CategoryType,
   CreateCategoryBodyType,
   GetCategoriesParamsType,
   UpdateCategoryBodyType,
@@ -9,6 +8,7 @@ import {
 import { CategoryRepository } from 'src/routes/category/category.repo';
 import { NotFoundRecordException } from 'src/shared/error';
 import { isNotFoundPrismaError } from 'src/shared/helpers';
+import { CategoryType } from 'src/shared/models/shared-category';
 import { UserType } from 'src/shared/models/shared-user.model';
 
 @Injectable()
