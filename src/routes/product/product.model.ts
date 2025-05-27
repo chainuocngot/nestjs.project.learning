@@ -157,6 +157,8 @@ export const UpdateProductBodySchema = CreateProductBodySchema;
 
 export const UpdateProductResSchema = ProductSchema;
 
+export const DeleteProductResSchema = ProductSchema;
+
 export type VariantType = z.infer<typeof VariantSchema>;
 export type VariantsType = z.infer<typeof VariantsSchema>;
 export type ProductType = z.infer<typeof ProductSchema>;
@@ -168,3 +170,4 @@ export type CreateProductBodyType = z.infer<typeof CreateProductBodySchema>;
 export type CreateProductResType = z.infer<typeof CreateProductResSchema>;
 export type UpdateProductBodyType = z.infer<typeof UpdateProductBodySchema>;
 export type UpdateProductResType = z.infer<typeof UpdateProductResSchema>;
+export type DeleteProductResType = z.infer<typeof DeleteProductResSchema>;

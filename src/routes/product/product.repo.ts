@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { GetProductsQueryType, GetProductsResType } from 'src/routes/product/product.model';
+import {
+  DeleteProductResType,
+  GetProductDetailResType,
+  GetProductsQueryType,
+  GetProductsResType,
+  ProductType,
+} from 'src/routes/product/product.model';
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/common.constant';
 import { LanguageType } from 'src/shared/models/shared-language.model';
+import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
 @Injectable()
@@ -42,5 +49,89 @@ export class ProductRepository {
       page: queries.page,
       totalPages: Math.ceil(totalItems / queries.limit),
     };
+  }
+
+  findById(productId: ProductType['id'], languageId: LanguageType['id']): Promise<GetProductDetailResType | null> {
+    return this.prismaService.product.findUnique({
+      where: {
+        id: productId,
+        deletedAt: null,
+      },
+      include: {
+        productTranslations: {
+          where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+        },
+        skus: {
+          where: {
+            deletedAt: null,
+          },
+        },
+        brand: {
+          include: {
+            brandTranslations: {
+              where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+            },
+          },
+        },
+        categories: {
+          where: {
+            deletedAt: null,
+          },
+          include: {
+            categoryTranslations: {
+              where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async delete(
+    { id, deletedById }: { id: ProductType['id']; deletedById: UserType['id'] },
+    isHard?: boolean,
+  ): Promise<DeleteProductResType> {
+    if (isHard) {
+      const [product] = await Promise.all([
+        this.prismaService.product.delete({
+          where: {
+            id,
+          },
+        }),
+        this.prismaService.sKU.deleteMany({
+          where: {
+            productId: id,
+          },
+        }),
+      ]);
+
+      return product;
+    }
+
+    const now = new Date();
+    const [product] = await Promise.all([
+      this.prismaService.product.update({
+        data: {
+          deletedAt: now,
+          deletedById,
+        },
+        where: {
+          id,
+          deletedAt: null,
+        },
+      }),
+      this.prismaService.sKU.updateMany({
+        data: {
+          deletedAt: now,
+          deletedById,
+        },
+        where: {
+          productId: id,
+          deletedAt: null,
+        },
+      }),
+    ]);
+
+    return product;
   }
 }
