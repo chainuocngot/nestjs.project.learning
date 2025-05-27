@@ -23,8 +23,8 @@ export class BrandController {
   @Get()
   @IsPublic()
   @ZodSerializerDto(GetBrandsResDTO)
-  findAll(@Param() pagination: PaginationQueryDTO) {
-    return this.brandService.findAll(pagination);
+  list(@Param() pagination: PaginationQueryDTO) {
+    return this.brandService.list(pagination);
   }
 
   @Get(':brandId')

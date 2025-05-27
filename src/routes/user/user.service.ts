@@ -59,8 +59,8 @@ export class UserService {
     }
   }
 
-  findAll(pagination: PaginationQueryType) {
-    return this.userRepository.findAll(pagination);
+  list(pagination: PaginationQueryType) {
+    return this.userRepository.list(pagination);
   }
 
   async findById(userId: UserType['id']) {

@@ -13,7 +13,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class RoleRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(pagination: PaginationQueryType): Promise<GetRolesResType> {
+  async list(pagination: PaginationQueryType): Promise<GetRolesResType> {
     const skip = pagination.limit * (pagination.page - 1);
     const take = pagination.limit;
 

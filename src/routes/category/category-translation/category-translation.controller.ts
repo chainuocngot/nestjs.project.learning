@@ -21,8 +21,8 @@ export class CategoryTranslationController {
 
   @Get()
   @ZodSerializerDto(GetCategoryTranslationsDTO)
-  findAll(@Param() pagination: PaginationQueryDTO) {
-    return this.categoryTranslationService.findAll(pagination);
+  list(@Param() pagination: PaginationQueryDTO) {
+    return this.categoryTranslationService.list(pagination);
   }
 
   @Get(':categoryTranslationId')

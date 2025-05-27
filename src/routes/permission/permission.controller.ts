@@ -20,8 +20,8 @@ export class PermissionController {
 
   @Get()
   @ZodSerializerDto(GetPermissionsResDTO)
-  findAll(@Query() pagination: PaginationQueryDTO) {
-    return this.permissionService.findAll(pagination);
+  list(@Query() pagination: PaginationQueryDTO) {
+    return this.permissionService.list(pagination);
   }
 
   @Get(':permissionId')

@@ -11,8 +11,8 @@ import { PermissionType } from 'src/shared/models/shared-permission.model';
 export class PermissionService {
   constructor(private readonly permissionRepository: PermissionRepository) {}
 
-  findAll(pagination: PaginationQueryType) {
-    return this.permissionRepository.findAll(pagination);
+  list(pagination: PaginationQueryType) {
+    return this.permissionRepository.list(pagination);
   }
 
   async findById(permissionId: PermissionType['id']) {

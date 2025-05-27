@@ -21,8 +21,8 @@ export class BrandTranslationController {
 
   @Get()
   @ZodSerializerDto(GetBrandTranslationsDTO)
-  findAll(@Param() pagination: PaginationQueryDTO) {
-    return this.brandTranslationService.findAll(pagination);
+  list(@Param() pagination: PaginationQueryDTO) {
+    return this.brandTranslationService.list(pagination);
   }
 
   @Get(':brandTranslationId')

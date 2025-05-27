@@ -8,7 +8,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(pagination: PaginationQueryType): Promise<GetUsersResType> {
+  async list(pagination: PaginationQueryType): Promise<GetUsersResType> {
     const skip = pagination.limit * (pagination.page - 1);
     const take = pagination.limit;
 

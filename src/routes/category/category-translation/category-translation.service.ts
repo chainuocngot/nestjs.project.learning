@@ -22,8 +22,8 @@ import { UserType } from 'src/shared/models/shared-user.model';
 export class CategoryTranslationService {
   constructor(private readonly categoryTranslationRepository: CategoryTranslationRepository) {}
 
-  findAll(pagination: PaginationQueryType) {
-    return this.categoryTranslationRepository.findAll(pagination);
+  list(pagination: PaginationQueryType) {
+    return this.categoryTranslationRepository.list(pagination);
   }
 
   async findById(categoryTranslationId: CategoryTranslationType['id']) {

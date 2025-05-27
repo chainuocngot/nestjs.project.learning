@@ -11,7 +11,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class BrandRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(pagination: PaginationQueryType, languageId: LanguageType['id']): Promise<GetBrandsResType> {
+  async list(pagination: PaginationQueryType, languageId: LanguageType['id']): Promise<GetBrandsResType> {
     const skip = pagination.limit * (pagination.page - 1);
     const take = pagination.limit;
 

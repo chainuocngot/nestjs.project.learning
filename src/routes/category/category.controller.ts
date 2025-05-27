@@ -23,8 +23,8 @@ export class CategoryController {
   @Get()
   @IsPublic()
   @ZodSerializerDto(GetCategoriesResDTO)
-  findAll(@Param() params: GetCategoriesParamsDTO) {
-    return this.categoryService.findAll(params);
+  list(@Param() params: GetCategoriesParamsDTO) {
+    return this.categoryService.list(params);
   }
 
   @Get(':categoryId')

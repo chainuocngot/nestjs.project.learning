@@ -10,8 +10,8 @@ import { LanguageType } from 'src/shared/models/shared-language.model';
 export class LanguageService {
   constructor(private readonly languageRepository: LanguageRepository) {}
 
-  async findAll() {
-    const data = await this.languageRepository.findAll();
+  async list() {
+    const data = await this.languageRepository.list();
 
     return {
       data,

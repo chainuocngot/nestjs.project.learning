@@ -15,7 +15,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class CategoryRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll({
+  async list({
     pagination,
     languageId,
     parentCategoryId,

@@ -23,8 +23,8 @@ export class UserController {
 
   @Get()
   @ZodSerializerDto(GetUsersResDTO)
-  findAll(@Param() pagination: PaginationQueryDTO) {
-    return this.userService.findAll(pagination);
+  list(@Param() pagination: PaginationQueryDTO) {
+    return this.userService.list(pagination);
   }
 
   @Get(':userId')

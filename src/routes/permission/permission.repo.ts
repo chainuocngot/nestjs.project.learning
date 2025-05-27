@@ -8,7 +8,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class PermissionRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(pagination: PaginationQueryType): Promise<GetPermissionsResType> {
+  async list(pagination: PaginationQueryType): Promise<GetPermissionsResType> {
     const skip = pagination.limit * (pagination.page - 1);
     const take = pagination.limit;
 

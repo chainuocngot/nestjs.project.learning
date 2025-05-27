@@ -25,8 +25,8 @@ export class RoleService {
     }
   }
 
-  findAll(pagination: PaginationQueryType) {
-    return this.roleRepository.findAll(pagination);
+  list(pagination: PaginationQueryType) {
+    return this.roleRepository.list(pagination);
   }
 
   async findById(roleId: RoleType['id']) {

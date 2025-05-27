@@ -76,7 +76,7 @@ export const ProductSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const GetProductQuerySchema = PaginationQuerySchema.extend({
+export const GetProductsQuerySchema = PaginationQuerySchema.extend({
   name: z.string().optional(),
   brandIds: z.array(z.coerce.number().int().positive()).optional(),
   categories: z.array(z.coerce.number().int()).optional(),
@@ -93,7 +93,7 @@ export const GetProductsResSchema = z.object({
   totalItems: z.number(),
   page: z.number(),
   limit: z.number(),
-  totalPage: z.number(),
+  totalPages: z.number(),
 });
 
 export const GetProductParamsSchema = z
@@ -160,7 +160,7 @@ export const UpdateProductResSchema = ProductSchema;
 export type VariantType = z.infer<typeof VariantSchema>;
 export type VariantsType = z.infer<typeof VariantsSchema>;
 export type ProductType = z.infer<typeof ProductSchema>;
-export type GetProductQueryType = z.infer<typeof GetProductQuerySchema>;
+export type GetProductsQueryType = z.infer<typeof GetProductsQuerySchema>;
 export type GetProductsResType = z.infer<typeof GetProductsResSchema>;
 export type GetProductParamsType = z.infer<typeof GetProductParamsSchema>;
 export type GetProductDetailResType = z.infer<typeof GetProductDetailResSchema>;

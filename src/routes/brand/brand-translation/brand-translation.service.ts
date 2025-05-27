@@ -22,8 +22,8 @@ import { UserType } from 'src/shared/models/shared-user.model';
 export class BrandTranslationService {
   constructor(private readonly brandTranslationRepository: BrandTranslationRepository) {}
 
-  findAll(pagination: PaginationQueryType) {
-    return this.brandTranslationRepository.findAll(pagination);
+  list(pagination: PaginationQueryType) {
+    return this.brandTranslationRepository.list(pagination);
   }
 
   async findById(brandTranslationId: BrandTranslationType['id']) {

@@ -7,7 +7,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class LanguageRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  findAll(): Promise<LanguageType[]> {
+  list(): Promise<LanguageType[]> {
     return this.prismaService.language.findMany({
       where: {
         deletedAt: null,

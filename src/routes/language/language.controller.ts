@@ -19,8 +19,8 @@ export class LanguageController {
 
   @Get()
   @ZodSerializerDto(GetLanguagesResDTO)
-  findAll() {
-    return this.languageService.findAll();
+  list() {
+    return this.languageService.list();
   }
 
   @Get(':languageId')

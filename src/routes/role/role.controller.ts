@@ -20,8 +20,8 @@ export class RoleController {
 
   @Get()
   @ZodSerializerDto(GetRolesResDTO)
-  findAll(@Query() pagination: PaginationQueryDTO) {
-    return this.roleService.findAll(pagination);
+  list(@Query() pagination: PaginationQueryDTO) {
+    return this.roleService.list(pagination);
   }
 
   @Get(':roleId')

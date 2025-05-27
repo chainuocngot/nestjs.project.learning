@@ -15,9 +15,9 @@ import { UserType } from 'src/shared/models/shared-user.model';
 export class CategoryService {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  findAll(params: GetCategoriesParamsType) {
+  list(params: GetCategoriesParamsType) {
     const { parentCategoryId = null, ...pagination } = params;
-    return this.categoryRepository.findAll({
+    return this.categoryRepository.list({
       pagination: pagination,
       languageId: I18nContext.current()?.lang as string,
       parentCategoryId,
