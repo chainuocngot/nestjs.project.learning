@@ -7,7 +7,10 @@ import {
   GetProductsQueryType,
   GetProductsResType,
   ProductType,
+  UpdateProductBodyType,
+  UpdateProductResType,
 } from 'src/routes/product/product.model';
+import { SKUType } from 'src/routes/product/sku.model';
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/common.constant';
 import { LanguageType } from 'src/shared/models/shared-language.model';
 import { UserType } from 'src/shared/models/shared-user.model';
@@ -89,7 +92,7 @@ export class ProductRepository {
     });
   }
 
-  async create(body: CreateProductBodyType, createdById: UserType['id']): Promise<CreateProductResType> {
+  create(body: CreateProductBodyType, createdById: UserType['id']): Promise<CreateProductResType> {
     const { skus, categories, ...productBody } = body;
 
     return this.prismaService.product.create({
@@ -137,6 +140,97 @@ export class ProductRepository {
         },
       },
     });
+  }
+
+  async update({
+    body,
+    productId,
+    updatedById,
+  }: {
+    body: UpdateProductBodyType;
+    productId: ProductType['id'];
+    updatedById: UserType['id'];
+  }): Promise<UpdateProductResType> {
+    const { skus: dataSkus, categories, ...productBody } = body;
+
+    const existingSKUs = await this.prismaService.sKU.findMany({
+      where: {
+        productId,
+        deletedAt: null,
+      },
+    });
+
+    const skusToDelete = existingSKUs.filter((sku) => dataSkus.every((dataSku) => dataSku.value !== sku.value));
+    const skuIdsToDelete = skusToDelete.map((sku) => sku.id);
+
+    const skusWithId = dataSkus.map((dataSku) => {
+      const existingSku = existingSKUs.find((existingSKU) => existingSKU.value === dataSku.value);
+      return {
+        ...dataSku,
+        id: existingSku ? existingSku.id : null,
+      };
+    });
+
+    const skusToUpdate = skusWithId.filter((sku) => sku.id !== null);
+
+    const skusToCreate = skusWithId
+      .filter((sku) => sku.id === null)
+      .map((sku) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...data } = sku;
+        return { ...data, productId, createdById: updatedById };
+      });
+
+    const [product] = await this.prismaService.$transaction([
+      //Update Product
+      this.prismaService.product.update({
+        where: {
+          id: productId,
+          deletedAt: null,
+        },
+        data: {
+          ...productBody,
+          updatedById,
+          categories: {
+            connect: categories.map((category) => ({ id: category })),
+          },
+        },
+      }),
+      //Delete SKU (sort)
+      this.prismaService.sKU.updateMany({
+        where: {
+          id: {
+            in: skuIdsToDelete,
+          },
+        },
+        data: {
+          deletedAt: new Date(),
+          updatedById,
+        },
+      }),
+      //Update SKU
+      ...skusToUpdate.map((sku) =>
+        this.prismaService.sKU.update({
+          where: {
+            id: sku.id as SKUType['id'],
+          },
+          data: {
+            value: sku.value,
+            price: sku.price,
+            stock: sku.stock,
+            image: sku.image,
+            updatedById,
+            updatedAt: new Date(),
+          },
+        }),
+      ),
+      //Create SKU
+      this.prismaService.sKU.createMany({
+        data: skusToCreate,
+      }),
+    ]);
+
+    return product;
   }
 
   async delete(
