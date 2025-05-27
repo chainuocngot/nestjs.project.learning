@@ -15,6 +15,10 @@ export const isForeignKeyConstrainPrismaError = (error: unknown): error is Prism
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003';
 };
 
+export const isQueryInterpretationPrismaError = (error: unknown): error is Prisma.PrismaClientKnownRequestError => {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2016';
+};
+
 export const generateOTP = () => {
   return randomInt(100000, 1000000).toString();
 };

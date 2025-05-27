@@ -1,12 +1,15 @@
 import { UnprocessableEntityException } from '@nestjs/common';
 
-export const BrandOrCategoryNotFoundException = new UnprocessableEntityException([
+export const CategoryNotFoundException = new UnprocessableEntityException([
   {
-    message: 'Error.BrandOrCategoryNotFound',
-    path: 'brandId',
-  },
-  {
-    message: 'Error.BrandOrCategoryNotFound',
+    message: 'Error.CategoryNotFound',
     path: 'categories',
+  },
+]);
+
+export const BrandNotFoundException = new UnprocessableEntityException([
+  {
+    message: 'Error.BrandNotFound',
+    path: 'brandId',
   },
 ]);

@@ -27,8 +27,8 @@ function generateSKUs(variants: VariantsType) {
 }
 
 export const VariantSchema = z.object({
-  value: z.string(),
-  options: z.array(z.string()),
+  value: z.string().trim(),
+  options: z.array(z.string().trim()),
 });
 
 export const VariantsSchema = z.array(VariantSchema).superRefine((variants, ctx) => {
@@ -39,7 +39,7 @@ export const VariantsSchema = z.array(VariantSchema).superRefine((variants, ctx)
     if (isExistingVariant) {
       return ctx.addIssue({
         code: 'custom',
-        message: `Giá trị ${variant.value} đã tồn tại trong danh sách variants. Vui lòng kiểm tra lại.`,
+        message: `The value "${variant.value}" already exists in the variants list. Please check again.`,
         path: ['variants'],
       });
     }
@@ -50,7 +50,7 @@ export const VariantsSchema = z.array(VariantSchema).superRefine((variants, ctx)
     if (isDifferentOption) {
       return ctx.addIssue({
         code: 'custom',
-        message: `Variant ${variant.value} chứa các option trùng tên với nhau. Vui lòng kiểm tra lại.`,
+        message: `Variant "${variant.value}" contains duplicate option names. Please check again.`,
         path: ['variants'],
       });
     }
@@ -60,9 +60,9 @@ export const VariantsSchema = z.array(VariantSchema).superRefine((variants, ctx)
 export const ProductSchema = z.object({
   id: z.number(),
   publishedAt: z.coerce.date().nullable(),
-  name: z.string().max(500),
-  basePrice: z.number().positive(),
-  virtualPrice: z.number().positive(),
+  name: z.string().max(500).trim(),
+  basePrice: z.number().min(0),
+  virtualPrice: z.number().min(0),
   brandId: z.number().int().positive(),
   images: z.array(z.string()),
   variants: VariantsSchema,
@@ -151,7 +151,7 @@ export const CreateProductBodySchema = ProductSchema.pick({
     }
   });
 
-export const CreateProductResSchema = ProductSchema;
+export const CreateProductResSchema = GetProductDetailResSchema;
 
 export const UpdateProductBodySchema = CreateProductBodySchema;
 

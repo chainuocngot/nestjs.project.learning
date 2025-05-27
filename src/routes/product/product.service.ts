@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
-import { BrandOrCategoryNotFoundException } from 'src/routes/product/product.error';
+import { BrandNotFoundException, CategoryNotFoundException } from 'src/routes/product/product.error';
 import {
   CreateProductBodyType,
   GetProductsQueryType,
@@ -9,7 +9,11 @@ import {
 } from 'src/routes/product/product.model';
 import { ProductRepository } from 'src/routes/product/product.repo';
 import { NotFoundRecordException } from 'src/shared/error';
-import { isForeignKeyConstrainPrismaError, isNotFoundPrismaError } from 'src/shared/helpers';
+import {
+  isForeignKeyConstrainPrismaError,
+  isNotFoundPrismaError,
+  isQueryInterpretationPrismaError,
+} from 'src/shared/helpers';
 import { UserType } from 'src/shared/models/shared-user.model';
 
 @Injectable()
@@ -36,8 +40,12 @@ export class ProductService {
 
       return product;
     } catch (error) {
+      if (isNotFoundPrismaError(error)) {
+        throw CategoryNotFoundException;
+      }
+
       if (isForeignKeyConstrainPrismaError(error)) {
-        throw BrandOrCategoryNotFoundException;
+        throw BrandNotFoundException;
       }
 
       throw error;
@@ -62,6 +70,9 @@ export class ProductService {
 
       return product;
     } catch (error) {
+      if (isQueryInterpretationPrismaError(error)) {
+        throw NotFoundRecordException;
+      }
       if (isNotFoundPrismaError(error)) {
         throw NotFoundRecordException;
       }

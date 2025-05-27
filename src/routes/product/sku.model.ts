@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 export const SKUSchema = z.object({
   id: z.number(),
-  value: z.string().max(500),
-  price: z.number().positive(),
-  stock: z.number(),
+  value: z.string().max(500).trim(),
+  price: z.number().min(0),
+  stock: z.number().min(0),
   image: z.string(),
   productId: z.number(),
 
