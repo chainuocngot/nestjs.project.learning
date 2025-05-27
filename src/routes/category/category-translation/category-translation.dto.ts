@@ -4,7 +4,7 @@ import {
   CreateCategoryTranslationResSchema,
   GetCategoryTranslationDetailResSchema,
   GetCategoryTranslationParamsSchema,
-  GetCategoryTranslationsSchema,
+  GetCategoryTranslationsResSchema,
   UpdateCategoryTranslationBodySchema,
   UpdateCategoryTranslationResSchema,
 } from 'src/routes/category/category-translation/category-translation.model';
@@ -12,7 +12,7 @@ import { CategoryTranslationSchema } from 'src/shared/models/shared-category-tra
 
 export class CategoryTranslationDTO extends createZodDto(CategoryTranslationSchema) {}
 
-export class GetCategoryTranslationsDTO extends createZodDto(GetCategoryTranslationsSchema) {}
+export class GetCategoryTranslationsResDTO extends createZodDto(GetCategoryTranslationsResSchema) {}
 
 export class GetCategoryTranslationParamsDTO extends createZodDto(GetCategoryTranslationParamsSchema) {}
 

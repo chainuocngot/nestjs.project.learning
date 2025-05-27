@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   CreateCategoryTranslationBodyType,
   GetCategoryTranslationDetailResType,
-  GetCategoryTranslationsType,
+  GetCategoryTranslationsResType,
   UpdateCategoryTranslationBodyType,
 } from 'src/routes/category/category-translation/category-translation.model';
 import { PaginationQueryType } from 'src/shared/models/request.model';
@@ -14,7 +14,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class CategoryTranslationRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async list(pagination: PaginationQueryType): Promise<GetCategoryTranslationsType> {
+  async list(pagination: PaginationQueryType): Promise<GetCategoryTranslationsResType> {
     const skip = pagination.limit * (pagination.page - 1);
     const take = pagination.limit;
 

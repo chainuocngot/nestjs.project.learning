@@ -5,7 +5,7 @@ import {
   CreateCategoryTranslationResDTO,
   GetCategoryTranslationDetailResDTO,
   GetCategoryTranslationParamsDTO,
-  GetCategoryTranslationsDTO,
+  GetCategoryTranslationsResDTO,
   UpdateCategoryTranslationBodyDTO,
   UpdateCategoryTranslationResDTO,
 } from 'src/routes/category/category-translation/category-translation.dto';
@@ -20,7 +20,7 @@ export class CategoryTranslationController {
   constructor(private readonly categoryTranslationService: CategoryTranslationService) {}
 
   @Get()
-  @ZodSerializerDto(GetCategoryTranslationsDTO)
+  @ZodSerializerDto(GetCategoryTranslationsResDTO)
   list(@Param() pagination: PaginationQueryDTO) {
     return this.categoryTranslationService.list(pagination);
   }

@@ -16,6 +16,14 @@ export const ProductTranslationSchema = z.object({
   updatedAt: z.date(),
 });
 
+export const GetProductTranslationsResSchema = z.object({
+  data: z.array(ProductTranslationSchema),
+  totalItems: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+});
+
 export const GetProductTranslationParamsSchema = z
   .object({
     productTranslationId: z.coerce.number().int().positive(),
@@ -38,6 +46,7 @@ export const UpdateProductTranslationBodySchema = CreateProductTranslationBodySc
 export const UpdateProductTranslationResSchema = ProductTranslationSchema;
 
 export type ProductTranslationType = z.infer<typeof ProductTranslationSchema>;
+export type GetProductTranslationsResType = z.infer<typeof GetProductTranslationsResSchema>;
 export type GetProductTranslationParamsType = z.infer<typeof GetProductTranslationParamsSchema>;
 export type GetProductTranslationDetailResType = z.infer<typeof GetProductTranslationDetailResSchema>;
 export type CreateProductTranslationBodyType = z.infer<typeof CreateProductTranslationBodySchema>;
