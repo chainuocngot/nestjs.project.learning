@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
+  CreateProductBodyType,
+  CreateProductResType,
   DeleteProductResType,
   GetProductDetailResType,
   GetProductsQueryType,
@@ -80,6 +82,56 @@ export class ProductRepository {
           include: {
             categoryTranslations: {
               where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async create(body: CreateProductBodyType, createdById: UserType['id']): Promise<CreateProductResType> {
+    const { skus, categories, ...productBody } = body;
+
+    return this.prismaService.product.create({
+      data: {
+        ...productBody,
+        createdById,
+        categories: {
+          connect: categories.map((category) => ({ id: category })),
+        },
+        skus: {
+          createMany: {
+            data: skus,
+          },
+        },
+      },
+      include: {
+        productTranslations: {
+          where: {
+            deletedAt: null,
+          },
+        },
+        skus: {
+          where: {
+            deletedAt: null,
+          },
+        },
+        brand: {
+          include: {
+            brandTranslations: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+        categories: {
+          where: {
+            deletedAt: null,
+          },
+          include: {
+            categoryTranslations: {
+              where: {
+                deletedAt: null,
+              },
             },
           },
         },
