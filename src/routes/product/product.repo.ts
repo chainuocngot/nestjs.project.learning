@@ -24,16 +24,18 @@ export class ProductRepository {
     const skip = queries.limit * (queries.page - 1);
     const take = queries.limit;
 
+    const where = {
+      deletedAt: null,
+      createdById: queries.createdById ?? undefined,
+      publishedAt: { lte: new Date(), not: null },
+    };
+
     const [totalItems, data] = await Promise.all([
       this.prismaService.product.count({
-        where: {
-          deletedAt: null,
-        },
+        where,
       }),
       this.prismaService.product.findMany({
-        where: {
-          deletedAt: null,
-        },
+        where,
         include: {
           productTranslations: {
             where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
@@ -56,11 +58,21 @@ export class ProductRepository {
     };
   }
 
-  findById(productId: ProductType['id'], languageId: LanguageType['id']): Promise<GetProductDetailResType | null> {
+  findById(productId: ProductType['id']): Promise<ProductType | null> {
+    return this.prismaService.product.findUnique({
+      where: {
+        deletedAt: null,
+        id: productId,
+      },
+    });
+  }
+
+  getDetail(productId: ProductType['id'], languageId: LanguageType['id']): Promise<GetProductDetailResType | null> {
     return this.prismaService.product.findUnique({
       where: {
         id: productId,
         deletedAt: null,
+        publishedAt: { lte: new Date(), not: null },
       },
       include: {
         productTranslations: {
@@ -238,20 +250,11 @@ export class ProductRepository {
     isHard?: boolean,
   ): Promise<DeleteProductResType> {
     if (isHard) {
-      const [product] = await Promise.all([
-        this.prismaService.product.delete({
-          where: {
-            id,
-          },
-        }),
-        this.prismaService.sKU.deleteMany({
-          where: {
-            productId: id,
-          },
-        }),
-      ]);
-
-      return product;
+      return this.prismaService.product.delete({
+        where: {
+          id,
+        },
+      });
     }
 
     const now = new Date();
@@ -264,6 +267,16 @@ export class ProductRepository {
         where: {
           id,
           deletedAt: null,
+        },
+      }),
+      this.prismaService.productTranslation.updateMany({
+        where: {
+          productId: id,
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: now,
+          deletedById,
         },
       }),
       this.prismaService.sKU.updateMany({
