@@ -46,6 +46,36 @@ export class ProductRepository {
       };
     }
 
+    if (props.queries.name) {
+      where.name = {
+        contains: props.queries.name,
+        mode: 'insensitive',
+      };
+    }
+
+    if (props.queries.brandIds && props.queries.brandIds.length > 0) {
+      where.brandId = {
+        in: props.queries.brandIds,
+      };
+    }
+
+    if (props.queries.categories && props.queries.categories.length > 0) {
+      where.categories = {
+        some: {
+          id: {
+            in: props.queries.categories,
+          },
+        },
+      };
+    }
+
+    if (props.queries.minPrice !== undefined || props.queries.maxPrice !== undefined) {
+      where.basePrice = {
+        gte: props.queries.minPrice,
+        lte: props.queries.maxPrice,
+      };
+    }
+
     const [totalItems, data] = await Promise.all([
       this.prismaService.product.count({
         where,
