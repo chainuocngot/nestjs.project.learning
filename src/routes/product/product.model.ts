@@ -1,5 +1,6 @@
 import { ProductTranslationSchema } from 'src/routes/product/product-translation/product-translation.model';
 import { SKUSchema, UpsertSKUBodySchema } from 'src/routes/product/sku.model';
+import { OrderBy, SortBy } from 'src/shared/constants/other.constant';
 import { PaginationQuerySchema } from 'src/shared/models/request.model';
 import { BrandWithTranslationSchema } from 'src/shared/models/shared-brand.model';
 import { CategoryWithTranslationSchema } from 'src/shared/models/shared-category';
@@ -100,6 +101,8 @@ export const GetProductsQuerySchema = PaginationQuerySchema.extend({
   minPrice: z.coerce.number().positive().optional(),
   maxPrice: z.coerce.number().positive().optional(),
   createdById: z.coerce.number().positive().optional(),
+  orderBy: z.nativeEnum(OrderBy).default(OrderBy.Desc),
+  sortBy: z.nativeEnum(SortBy).default(SortBy.CreatedAt),
 }).strict();
 
 /**
