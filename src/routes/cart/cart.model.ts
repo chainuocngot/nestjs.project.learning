@@ -24,3 +24,38 @@ export const CartItemDetailSchema = CartItemSchema.extend({
     }),
   }),
 });
+
+export const GetCartResSchema = z.object({
+  data: z.array(CartItemDetailSchema),
+  totalItems: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+});
+
+export const AddToCartBodySchema = CartItemSchema.pick({
+  skuId: true,
+  quantity: true,
+}).strict();
+
+export const AddToCartResSchema = CartItemDetailSchema;
+
+export const UpdateCartBodySchema = AddToCartBodySchema;
+
+export const UpdateCartResSchema = CartItemDetailSchema;
+
+export const DeleteCartBodySchema = z
+  .object({
+    cartItemIds: z.array(z.number().int().positive()),
+  })
+  .strict();
+
+export type CartItemType = z.infer<typeof CartItemSchema>;
+export type GetCartItemParamsType = z.infer<typeof GetCartItemParamsSchema>;
+export type CartItemDetailType = z.infer<typeof CartItemDetailSchema>;
+export type GetCartResType = z.infer<typeof GetCartResSchema>;
+export type AddToCartBodyType = z.infer<typeof AddToCartBodySchema>;
+export type AddToCartResType = z.infer<typeof AddToCartResSchema>;
+export type UpdateCartBodyType = z.infer<typeof UpdateCartBodySchema>;
+export type UpdateCartResType = z.infer<typeof UpdateCartResSchema>;
+export type DeleteCartBodyType = z.infer<typeof DeleteCartBodySchema>;
