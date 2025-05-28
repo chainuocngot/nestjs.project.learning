@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   CreateProductBodyType,
   CreateProductResType,
@@ -20,15 +21,30 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async list(queries: GetProductsQueryType, languageId: LanguageType['id']): Promise<GetProductsResType> {
-    const skip = queries.limit * (queries.page - 1);
-    const take = queries.limit;
+  async list(props: {
+    queries: GetProductsQueryType;
+    languageId: LanguageType['id'];
+    isPublic?: boolean;
+  }): Promise<GetProductsResType> {
+    const skip = props.queries.limit * (props.queries.page - 1);
+    const take = props.queries.limit;
 
-    const where = {
+    let where: Prisma.ProductWhereInput = {
       deletedAt: null,
-      createdById: queries.createdById ?? undefined,
-      publishedAt: { lte: new Date(), not: null },
+      createdById: props.queries.createdById ?? undefined,
     };
+
+    if (props.isPublic === true) {
+      where.publishedAt = {
+        lte: new Date(),
+        not: null,
+      };
+    } else if (props.isPublic === false) {
+      where = {
+        ...where,
+        OR: [{ publishedAt: null }, { publishedAt: { gt: new Date() } }],
+      };
+    }
 
     const [totalItems, data] = await Promise.all([
       this.prismaService.product.count({
@@ -38,7 +54,10 @@ export class ProductRepository {
         where,
         include: {
           productTranslations: {
-            where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+            where:
+              props.languageId === ALL_LANGUAGE_CODE
+                ? { deletedAt: null }
+                : { languageId: props.languageId, deletedAt: null },
           },
         },
         orderBy: {
@@ -52,9 +71,9 @@ export class ProductRepository {
     return {
       data,
       totalItems,
-      limit: queries.limit,
-      page: queries.page,
-      totalPages: Math.ceil(totalItems / queries.limit),
+      limit: props.queries.limit,
+      page: props.queries.page,
+      totalPages: Math.ceil(totalItems / props.queries.limit),
     };
   }
 
@@ -67,16 +86,36 @@ export class ProductRepository {
     });
   }
 
-  getDetail(productId: ProductType['id'], languageId: LanguageType['id']): Promise<GetProductDetailResType | null> {
+  getDetail(props: {
+    productId: ProductType['id'];
+    languageId: LanguageType['id'];
+    isPublic?: boolean;
+  }): Promise<GetProductDetailResType | null> {
+    let where: Prisma.ProductWhereUniqueInput = {
+      id: props.productId,
+      deletedAt: null,
+    };
+
+    if (props.isPublic === true) {
+      where.publishedAt = {
+        lte: new Date(),
+        not: null,
+      };
+    } else if (props.isPublic === false) {
+      where = {
+        ...where,
+        OR: [{ publishedAt: null }, { publishedAt: { gt: new Date() } }],
+      };
+    }
+
     return this.prismaService.product.findUnique({
-      where: {
-        id: productId,
-        deletedAt: null,
-        publishedAt: { lte: new Date(), not: null },
-      },
+      where,
       include: {
         productTranslations: {
-          where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+          where:
+            props.languageId === ALL_LANGUAGE_CODE
+              ? { deletedAt: null }
+              : { languageId: props.languageId, deletedAt: null },
         },
         skus: {
           where: {
@@ -86,7 +125,10 @@ export class ProductRepository {
         brand: {
           include: {
             brandTranslations: {
-              where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+              where:
+                props.languageId === ALL_LANGUAGE_CODE
+                  ? { deletedAt: null }
+                  : { languageId: props.languageId, deletedAt: null },
             },
           },
         },
@@ -96,7 +138,10 @@ export class ProductRepository {
           },
           include: {
             categoryTranslations: {
-              where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
+              where:
+                props.languageId === ALL_LANGUAGE_CODE
+                  ? { deletedAt: null }
+                  : { languageId: props.languageId, deletedAt: null },
             },
           },
         },

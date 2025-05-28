@@ -27,11 +27,19 @@ export class ManageProductService {
       roleNameRequest: props.roleNameRequest,
       userIdRequest: props.userIdRequest,
     });
-    return this.productRepository.list(props.queries, I18nContext.current()?.lang as string);
+
+    return this.productRepository.list({
+      queries: props.queries,
+      languageId: I18nContext.current()?.lang as string,
+      isPublic: props.queries.isPublic,
+    });
   }
 
   async getDetail(props: { productId: ProductType['id']; userIdRequest: UserType['id']; roleNameRequest: string }) {
-    const product = await this.productRepository.getDetail(props.productId, I18nContext.current()?.lang as string);
+    const product = await this.productRepository.getDetail({
+      languageId: I18nContext.current()?.lang as string,
+      productId: props.productId,
+    });
 
     if (!product) {
       throw NotFoundRecordException;

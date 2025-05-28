@@ -9,11 +9,19 @@ export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
   list(queries: GetProductsQueryType) {
-    return this.productRepository.list(queries, I18nContext.current()?.lang as string);
+    return this.productRepository.list({
+      queries,
+      languageId: I18nContext.current()?.lang as string,
+      isPublic: true,
+    });
   }
 
   async getDetail(productId: ProductType['id']) {
-    const product = await this.productRepository.getDetail(productId, I18nContext.current()?.lang as string);
+    const product = await this.productRepository.getDetail({
+      languageId: I18nContext.current()?.lang as string,
+      productId,
+      isPublic: true,
+    });
 
     if (!product) {
       throw NotFoundRecordException;

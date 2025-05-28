@@ -92,7 +92,7 @@ export const GetProductsQuerySchema = PaginationQuerySchema.extend({
  * For admin and seller
  */
 export const GetManageProductsQuerySchema = GetProductsQuerySchema.extend({
-  isPublic: z.coerce.boolean().optional(),
+  isPublic: z.preprocess((value) => value === 'true', z.boolean()).optional(),
   createdById: z.coerce.number().positive(),
 }).strict();
 
