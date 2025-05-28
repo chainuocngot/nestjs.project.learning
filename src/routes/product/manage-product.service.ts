@@ -157,7 +157,7 @@ export class ManageProductService {
   /**
    * Check if user is creater or admin
    */
-  validatePrivilage({
+  private validatePrivilage({
     userIdRequest,
     roleNameRequest,
     createdById,

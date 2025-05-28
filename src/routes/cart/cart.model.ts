@@ -38,11 +38,11 @@ export const AddToCartBodySchema = CartItemSchema.pick({
   quantity: true,
 }).strict();
 
-export const AddToCartResSchema = CartItemDetailSchema;
+export const AddToCartResSchema = CartItemSchema;
 
 export const UpdateCartBodySchema = AddToCartBodySchema;
 
-export const UpdateCartResSchema = CartItemDetailSchema;
+export const UpdateCartResSchema = CartItemSchema;
 
 export const DeleteCartBodySchema = z
   .object({
