@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
-import { GetProductsQueryType, ProductType } from 'src/routes/product/product.model';
+import { GetProductsQueryType } from 'src/routes/product/product.model';
 import { ProductRepository } from 'src/routes/product/product.repo';
 import { NotFoundRecordException } from 'src/shared/error';
+import { ProductType } from 'src/shared/models/shared-product.model';
 
 @Injectable()
 export class ProductService {

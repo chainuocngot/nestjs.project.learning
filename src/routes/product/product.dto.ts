@@ -8,12 +8,10 @@ import {
   GetProductParamsSchema,
   GetProductsQuerySchema,
   GetProductsResSchema,
-  ProductSchema,
   UpdateProductBodySchema,
   UpdateProductResSchema,
-  VariantSchema,
-  VariantsSchema,
 } from 'src/routes/product/product.model';
+import { ProductSchema, VariantSchema, VariantsSchema } from 'src/shared/models/shared-product.model';
 
 export class VariantDTO extends createZodDto(VariantSchema) {}
 

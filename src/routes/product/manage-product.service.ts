@@ -4,7 +4,6 @@ import { BrandNotFoundException, CategoryNotFoundException } from 'src/routes/pr
 import {
   CreateProductBodyType,
   GetManageProductsQueryType,
-  ProductType,
   UpdateProductBodyType,
 } from 'src/routes/product/product.model';
 import { ProductRepository } from 'src/routes/product/product.repo';
@@ -15,6 +14,7 @@ import {
   isNotFoundPrismaError,
   isQueryInterpretationPrismaError,
 } from 'src/shared/helpers';
+import { ProductType } from 'src/shared/models/shared-product.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 
 @Injectable()

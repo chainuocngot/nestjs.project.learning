@@ -7,14 +7,14 @@ import {
   GetProductDetailResType,
   GetProductsQueryType,
   GetProductsResType,
-  ProductType,
   UpdateProductBodyType,
   UpdateProductResType,
 } from 'src/routes/product/product.model';
-import { SKUType } from 'src/routes/product/sku.model';
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/common.constant';
 import { SortBy } from 'src/shared/constants/other.constant';
 import { LanguageType } from 'src/shared/models/shared-language.model';
+import { ProductType } from 'src/shared/models/shared-product.model';
+import { SKUType } from 'src/shared/models/shared-sku.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
