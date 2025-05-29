@@ -6,7 +6,8 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 
 const prisma = new PrismaService();
 
-const SELLER_MODULE = ['AUTH', 'MEDIA', 'MANAGE-PRODUCT', 'PRODUCT-TRANSLATION', 'PROFILE'];
+const SELLER_MODULE = ['AUTH', 'MEDIA', 'MANAGE-PRODUCT', 'PRODUCT-TRANSLATION', 'PROFILE', 'CART'];
+const CLIENT_MODULE = ['AUTH', 'MEDIA', 'PROFILE', 'CART'];
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -101,7 +102,17 @@ async function bootstrap() {
       id: item.id,
     }));
 
-  await Promise.all([updateRole(adminPermissionIds, RoleName.Admin), updateRole(sellerPermissionIds, RoleName.Seller)]);
+  const clientPermissionIds = updatedPermissionsInDb
+    .filter((item) => CLIENT_MODULE.includes(item.module))
+    .map((item) => ({
+      id: item.id,
+    }));
+
+  await Promise.all([
+    updateRole(adminPermissionIds, RoleName.Admin),
+    updateRole(sellerPermissionIds, RoleName.Seller),
+    updateRole(clientPermissionIds, RoleName.Client),
+  ]);
 
   process.exit(0);
 }

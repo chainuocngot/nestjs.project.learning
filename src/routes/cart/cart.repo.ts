@@ -21,7 +21,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class CartRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(props: {
+  async list(props: {
     pagination: PaginationQueryType;
     userId: UserType['id'];
     languageId: LanguageType['id'];
