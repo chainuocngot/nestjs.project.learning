@@ -4,6 +4,7 @@ import { ProductNotFoundException, SKUNotFoundException, SKUOutOfStockException 
 import {
   AddToCartBodyType,
   AddToCartResType,
+  CartItemDetailType,
   CartItemType,
   DeleteCartBodyType,
   GetCartResType,
@@ -26,46 +27,70 @@ export class CartRepository {
     userId: UserType['id'];
     languageId: LanguageType['id'];
   }): Promise<GetCartResType> {
-    const skip = props.pagination.limit * (props.pagination.page - 1);
-    const take = props.pagination.limit;
-
-    const [totalItems, data] = await Promise.all([
-      this.prismaService.cartItem.count({
-        where: {
-          userId: props.userId,
+    const cartItems = await this.prismaService.cartItem.findMany({
+      where: {
+        userId: props.userId,
+        sku: {
+          product: {
+            deletedAt: null,
+            publishedAt: {
+              lte: new Date(),
+              not: null,
+            },
+          },
         },
-      }),
-      this.prismaService.cartItem.findMany({
-        where: {
-          userId: props.userId,
-        },
-        include: {
-          sku: {
-            include: {
-              product: {
-                include: {
-                  productTranslations: {
-                    where:
-                      props.languageId === ALL_LANGUAGE_CODE
-                        ? { deletedAt: null }
-                        : { languageId: props.languageId, deletedAt: null },
-                  },
+      },
+      include: {
+        sku: {
+          include: {
+            product: {
+              include: {
+                productTranslations: {
+                  where:
+                    props.languageId === ALL_LANGUAGE_CODE
+                      ? { deletedAt: null }
+                      : { languageId: props.languageId, deletedAt: null },
                 },
+                createdBy: true,
               },
             },
           },
         },
-        skip,
-        take,
-      }),
-    ]);
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    const groupMap = new Map<number, CartItemDetailType>();
+
+    for (const cartItem of cartItems) {
+      const shopId = cartItem.sku.product.createdById;
+
+      if (shopId) {
+        if (!groupMap.has(shopId)) {
+          groupMap.set(shopId, {
+            shop: cartItem.sku.product.createdBy,
+            cartItems: [],
+          });
+        }
+        groupMap.get(shopId)?.cartItems.push(cartItem);
+      }
+    }
+
+    const sortedGroups = Array.from(groupMap.values());
+
+    const skip = props.pagination.limit * (props.pagination.page - 1);
+    const take = props.pagination.limit;
+    const totalGroups = sortedGroups.length;
+    const pagedGroups = sortedGroups.slice(skip, skip + take);
 
     return {
-      data,
-      totalItems,
+      data: pagedGroups,
+      totalItems: totalGroups,
       limit: props.pagination.limit,
       page: props.pagination.page,
-      totalPages: Math.ceil(totalItems / props.pagination.limit),
+      totalPages: Math.ceil(totalGroups / props.pagination.limit),
     };
   }
 
