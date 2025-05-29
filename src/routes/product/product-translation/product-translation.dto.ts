@@ -5,10 +5,10 @@ import {
   GetProductTranslationDetailResSchema,
   GetProductTranslationParamsSchema,
   GetProductTranslationsResSchema,
-  ProductTranslationSchema,
   UpdateProductTranslationBodySchema,
   UpdateProductTranslationResSchema,
 } from 'src/routes/product/product-translation/product-translation.model';
+import { ProductTranslationSchema } from 'src/shared/models/shared-product-translation.model';
 
 export class ProductTranslationDTO extends createZodDto(ProductTranslationSchema) {}
 

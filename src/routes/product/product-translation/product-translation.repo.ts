@@ -3,10 +3,10 @@ import {
   CreateProductTranslationBodyType,
   GetProductTranslationDetailResType,
   GetProductTranslationsResType,
-  ProductTranslationType,
   UpdateProductTranslationBodyType,
 } from 'src/routes/product/product-translation/product-translation.model';
 import { PaginationQueryType } from 'src/shared/models/request.model';
+import { ProductTranslationType } from 'src/shared/models/shared-product-translation.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 

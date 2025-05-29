@@ -1,20 +1,5 @@
+import { ProductTranslationSchema } from 'src/shared/models/shared-product-translation.model';
 import { z } from 'zod';
-
-export const ProductTranslationSchema = z.object({
-  id: z.number(),
-  productId: z.number(),
-  languageId: z.string(),
-  name: z.string().max(500),
-  description: z.string(),
-
-  createdById: z.number().nullable(),
-  updatedById: z.number().nullable(),
-  deletedById: z.number().nullable(),
-
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
 
 export const GetProductTranslationsResSchema = z.object({
   data: z.array(ProductTranslationSchema),
@@ -45,7 +30,6 @@ export const UpdateProductTranslationBodySchema = CreateProductTranslationBodySc
 
 export const UpdateProductTranslationResSchema = ProductTranslationSchema;
 
-export type ProductTranslationType = z.infer<typeof ProductTranslationSchema>;
 export type GetProductTranslationsResType = z.infer<typeof GetProductTranslationsResSchema>;
 export type GetProductTranslationParamsType = z.infer<typeof GetProductTranslationParamsSchema>;
 export type GetProductTranslationDetailResType = z.infer<typeof GetProductTranslationDetailResSchema>;
