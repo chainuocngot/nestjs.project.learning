@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 import {
   CreateCategoryBodyType,
-  GetCategoriesParamsType,
+  GetCategoriesQueryType,
   UpdateCategoryBodyType,
 } from 'src/routes/category/category.model';
 import { CategoryRepository } from 'src/routes/category/category.repo';
@@ -15,8 +15,8 @@ import { UserType } from 'src/shared/models/shared-user.model';
 export class CategoryService {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  list(params: GetCategoriesParamsType) {
-    const { parentCategoryId = null, ...pagination } = params;
+  list(queries: GetCategoriesQueryType) {
+    const { parentCategoryId = null, ...pagination } = queries;
     return this.categoryRepository.list({
       pagination: pagination,
       languageId: I18nContext.current()?.lang as string,

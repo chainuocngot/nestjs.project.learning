@@ -2,7 +2,7 @@ import { PaginationQuerySchema } from 'src/shared/models/request.model';
 import { CategorySchema, CategoryWithTranslationSchema } from 'src/shared/models/shared-category';
 import { z } from 'zod';
 
-export const GetCategoriesParamsSchema = PaginationQuerySchema.extend({
+export const GetCategoriesQuerySchema = PaginationQuerySchema.extend({
   parentCategoryId: z.coerce.number().int().positive().optional(),
 }).strict();
 
@@ -34,7 +34,7 @@ export const UpdateCategoryBodySchema = CreateCategoryBodySchema;
 
 export const UpdateCategoryResSchema = CategorySchema;
 
-export type GetCategoriesParamsType = z.infer<typeof GetCategoriesParamsSchema>;
+export type GetCategoriesQueryType = z.infer<typeof GetCategoriesQuerySchema>;
 export type GetCategoriesResType = z.infer<typeof GetCategoriesResSchema>;
 export type GetCategoryParamsType = z.infer<typeof GetCategoryParamsSchema>;
 export type GetCategoryDetailResType = z.infer<typeof GetCategoryDetailResSchema>;

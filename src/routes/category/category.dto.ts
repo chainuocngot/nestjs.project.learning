@@ -2,7 +2,7 @@ import { createZodDto } from 'nestjs-zod';
 import {
   CreateCategoryBodySchema,
   CreateCategoryResSchema,
-  GetCategoriesParamsSchema,
+  GetCategoriesQuerySchema,
   GetCategoriesResSchema,
   GetCategoryDetailResSchema,
   GetCategoryParamsSchema,
@@ -10,7 +10,7 @@ import {
   UpdateCategoryResSchema,
 } from 'src/routes/category/category.model';
 
-export class GetCategoriesParamsDTO extends createZodDto(GetCategoriesParamsSchema) {}
+export class GetCategoriesQueryDTO extends createZodDto(GetCategoriesQuerySchema) {}
 
 export class GetCategoriesResDTO extends createZodDto(GetCategoriesResSchema) {}
 

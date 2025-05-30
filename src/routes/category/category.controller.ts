@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   CreateCategoryBodyDTO,
   CreateCategoryResDTO,
-  GetCategoriesParamsDTO,
+  GetCategoriesQueryDTO,
   GetCategoriesResDTO,
   GetCategoryDetailResDTO,
   GetCategoryParamsDTO,
@@ -23,8 +23,8 @@ export class CategoryController {
   @Get()
   @IsPublic()
   @ZodSerializerDto(GetCategoriesResDTO)
-  list(@Param() params: GetCategoriesParamsDTO) {
-    return this.categoryService.list(params);
+  list(@Query() queries: GetCategoriesQueryDTO) {
+    return this.categoryService.list(queries);
   }
 
   @Get(':categoryId')

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   AddToCartBodyDTO,
@@ -21,7 +21,7 @@ export class CartController {
 
   @Get()
   @ZodSerializerDto(GetCartResDTO)
-  list(@Param() pagination: PaginationQueryDTO, @ActiveUser('userId') userId: UserType['id']) {
+  list(@Query() pagination: PaginationQueryDTO, @ActiveUser('userId') userId: UserType['id']) {
     return this.cartService.list(pagination, userId);
   }
 

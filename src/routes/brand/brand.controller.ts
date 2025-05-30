@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   CreateBrandBodyDTO,
@@ -23,7 +23,7 @@ export class BrandController {
   @Get()
   @IsPublic()
   @ZodSerializerDto(GetBrandsResDTO)
-  list(@Param() pagination: PaginationQueryDTO) {
+  list(@Query() pagination: PaginationQueryDTO) {
     return this.brandService.list(pagination);
   }
 

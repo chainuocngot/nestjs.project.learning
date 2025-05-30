@@ -434,7 +434,7 @@ model Order {
   items       ProductSKUSnapshot[]
   products    Product[]
   ///[Receiver]
-  reveiver    Json
+  receiver    Json
   shopId      Int?
   shop        User?                @relation("Shop", fields: [shopId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 

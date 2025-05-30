@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   CreateCategoryTranslationBodyDTO,
@@ -21,7 +21,7 @@ export class CategoryTranslationController {
 
   @Get()
   @ZodSerializerDto(GetCategoryTranslationsResDTO)
-  list(@Param() pagination: PaginationQueryDTO) {
+  list(@Query() pagination: PaginationQueryDTO) {
     return this.categoryTranslationService.list(pagination);
   }
 
