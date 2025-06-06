@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GetOrdersQueryType } from 'src/routes/order/order.model';
+import { CreateOrderBodyType, GetOrdersQueryType } from 'src/routes/order/order.model';
 import { OrderRepository } from 'src/routes/order/order.repo';
 import { UserType } from 'src/shared/models/shared-user.model';
 
@@ -9,5 +9,9 @@ export class OrderService {
 
   list(queries: GetOrdersQueryType, userId: UserType['id']) {
     return this.orderRepository.list(queries, userId);
+  }
+
+  create(body: CreateOrderBodyType, userId: UserType['id']) {
+    return this.orderRepository.create(body, userId);
   }
 }

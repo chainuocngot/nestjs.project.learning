@@ -118,7 +118,7 @@ const fake = async () => {
             stock: faker.number.int({ min: 0, max: 100 }),
             image: faker.image.url(),
             productId: product.id,
-            createdById: faker.number.int({ min: 1, max: 3 }),
+            createdById: product.createdById,
             createdAt: new Date(),
             updatedAt: new Date(),
           },

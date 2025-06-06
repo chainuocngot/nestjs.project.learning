@@ -65,6 +65,7 @@ export class CartRepository {
     const groupMap = new Map<number, CartItemDetailType>();
 
     for (const cartItem of cartItems) {
+      console.log('>> Check | cartItem:', cartItem);
       const shopId = cartItem.sku.product.createdById;
 
       if (shopId) {
