@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { AccessTokenGuard } from 'src/shared/guards/access-token.guard';
-import { ApiKeyGuard } from 'src/shared/guards/api-key.guard';
+import { PaymentApiKeyGuard } from 'src/shared/guards/payment-api-key.guard';
 import { AuthenticationGuard } from 'src/shared/guards/authentication.guard';
 import { SharedRoleRepository } from 'src/shared/repositories/shared-role.repo';
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo';
@@ -30,7 +30,7 @@ const sharedServices = [
   providers: [
     ...sharedServices,
     AccessTokenGuard,
-    ApiKeyGuard,
+    PaymentApiKeyGuard,
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,

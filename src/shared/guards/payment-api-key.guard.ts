@@ -3,14 +3,14 @@ import envConfig from 'src/shared/config';
 import { TokenService } from 'src/shared/services/token.service';
 
 @Injectable()
-export class ApiKeyGuard implements CanActivate {
+export class PaymentApiKeyGuard implements CanActivate {
   constructor(private readonly tokenService: TokenService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-    const xApiKey = request.headers['x-api-key'];
+    const xApiKey = request.headers['payment-api-key'];
 
-    if (xApiKey !== envConfig.SECRET_API_KEY) {
+    if (xApiKey !== envConfig.PAYMENT_API_KEY) {
       throw new UnauthorizedException();
     }
 
