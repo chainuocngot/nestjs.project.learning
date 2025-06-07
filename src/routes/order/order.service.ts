@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrderBodyType, GetOrdersQueryType } from 'src/routes/order/order.model';
+import { CreateOrderBodyType, GetOrdersQueryType, OrderType } from 'src/routes/order/order.model';
 import { OrderRepository } from 'src/routes/order/order.repo';
 import { UserType } from 'src/shared/models/shared-user.model';
 
@@ -13,5 +13,13 @@ export class OrderService {
 
   create(body: CreateOrderBodyType, userId: UserType['id']) {
     return this.orderRepository.create(body, userId);
+  }
+
+  findById(userId: UserType['id'], orderId: OrderType['id']) {
+    return this.orderRepository.findById(userId, orderId);
+  }
+
+  cancel(userId: UserType['id'], orderId: OrderType['id']) {
+    return this.orderRepository.cancel(userId, orderId);
   }
 }

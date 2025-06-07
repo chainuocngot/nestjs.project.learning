@@ -2,17 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ProductNotFoundException } from 'src/routes/cart/cart.error';
 import {
+  CannotCancelOrderException,
   NotFoundCartItemException,
+  OrderNotFoundException,
   OutOfStockSKUException,
   SKUNotBelongToShopException,
 } from 'src/routes/order/order.error';
 import {
+  CancelOrderResType,
   CreateOrderBodyType,
   CreateOrderResType,
+  GetOrderDetailResType,
   GetOrdersQueryType,
   GetOrdersResType,
+  OrderType,
 } from 'src/routes/order/order.model';
 import { OrderStatus } from 'src/shared/constants/order.constant';
+import { isNotFoundPrismaError } from 'src/shared/helpers';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
@@ -174,5 +180,58 @@ export class OrderRepository {
     return {
       data: orders,
     };
+  }
+
+  async findById(userId: UserType['id'], orderId: OrderType['id']): Promise<GetOrderDetailResType> {
+    const order = await this.prismaService.order.findUnique({
+      where: {
+        id: orderId,
+        userId,
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw OrderNotFoundException;
+    }
+
+    return order;
+  }
+
+  async cancel(userId: UserType['id'], orderId: OrderType['id']): Promise<CancelOrderResType> {
+    try {
+      const order = await this.prismaService.order.findUniqueOrThrow({
+        where: {
+          id: orderId,
+          userId,
+          deletedAt: null,
+        },
+      });
+      if (order?.status !== OrderStatus.PendingPayment) {
+        throw CannotCancelOrderException;
+      }
+
+      const updatedOrder = await this.prismaService.order.update({
+        where: {
+          id: orderId,
+          userId,
+          deletedAt: null,
+        },
+        data: {
+          status: OrderStatus.Cancelled,
+          updatedById: userId,
+        },
+      });
+
+      return updatedOrder;
+    } catch (error) {
+      if (isNotFoundPrismaError(error)) {
+        throw OrderNotFoundException;
+      }
+
+      throw error;
+    }
   }
 }

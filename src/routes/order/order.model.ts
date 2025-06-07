@@ -75,7 +75,7 @@ export const GetOrdersQuerySchema = PaginationQuerySchema.extend({
 
 export const GetOrderParamSchema = z
   .object({
-    orderId: z.number(),
+    orderId: z.coerce.number().int().positive(),
   })
   .strict();
 
