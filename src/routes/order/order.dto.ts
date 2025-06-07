@@ -7,11 +7,13 @@ import {
   GetOrderParamSchema,
   GetOrdersQuerySchema,
   GetOrdersResSchema,
+} from 'src/routes/order/order.model';
+import {
   OrderSchema,
   ProductSKUSnapshotSchema,
   ProductTranslationsSchema,
   ReceiverSchema,
-} from 'src/routes/order/order.model';
+} from 'src/shared/models/shared-order.model';
 
 export class ReceiverDTO extends createZodDto(ReceiverSchema) {}
 

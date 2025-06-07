@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrderBodyType, GetOrdersQueryType, OrderType } from 'src/routes/order/order.model';
+import { CreateOrderBodyType, GetOrdersQueryType } from 'src/routes/order/order.model';
 import { OrderRepository } from 'src/routes/order/order.repo';
+import { OrderType } from 'src/shared/models/shared-order.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 
 @Injectable()
