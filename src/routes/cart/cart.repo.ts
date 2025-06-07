@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { ProductNotFoundException, SKUNotFoundException, SKUOutOfStockException } from 'src/routes/cart/cart.error';
+import {
+  InvalidQuantityException,
+  NotFoundCartItemException,
+  ProductNotFoundException,
+  SKUNotFoundException,
+  SKUOutOfStockException,
+} from 'src/routes/cart/cart.error';
 import {
   AddToCartBodyType,
   AddToCartResType,
@@ -12,6 +18,7 @@ import {
   UpdateCartResType,
 } from 'src/routes/cart/cart.model';
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/common.constant';
+import { isNotFoundPrismaError } from 'src/shared/helpers';
 import { PaginationQueryType } from 'src/shared/models/request.model';
 import { LanguageType } from 'src/shared/models/shared-language.model';
 import { SKUType } from 'src/shared/models/shared-sku.model';
@@ -96,7 +103,12 @@ export class CartRepository {
   }
 
   async addToCart(body: AddToCartBodyType, userId: UserType['id']): Promise<AddToCartResType> {
-    await this.validateSKU(body.skuId, body.quantity);
+    await this.validateSKU({
+      skuId: body.skuId,
+      quantity: body.quantity,
+      userId,
+      isCreate: true,
+    });
 
     return this.prismaService.cartItem.upsert({
       where: {
@@ -117,18 +129,36 @@ export class CartRepository {
     });
   }
 
-  async updateCart(body: UpdateCartBodyType, cartItemId: CartItemType['id']): Promise<UpdateCartResType> {
-    await this.validateSKU(body.skuId, body.quantity);
+  async updateCart(
+    body: UpdateCartBodyType,
+    cartItemId: CartItemType['id'],
+    userId: UserType['id'],
+  ): Promise<UpdateCartResType> {
+    try {
+      await this.validateSKU({
+        skuId: body.skuId,
+        quantity: body.quantity,
+        userId,
+        isCreate: false,
+      });
 
-    return this.prismaService.cartItem.update({
-      where: {
-        id: cartItemId,
-      },
-      data: {
-        ...body,
-        updatedAt: new Date(),
-      },
-    });
+      return this.prismaService.cartItem.update({
+        where: {
+          id: cartItemId,
+          userId,
+        },
+        data: {
+          ...body,
+          updatedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      if (isNotFoundPrismaError(error)) {
+        throw NotFoundCartItemException;
+      }
+
+      throw error;
+    }
   }
 
   delete(body: DeleteCartBodyType, userId: UserType['id']): Promise<Prisma.BatchPayload> {
@@ -142,22 +172,41 @@ export class CartRepository {
     });
   }
 
-  private async validateSKU(skuId: SKUType['id'], quantity: number): Promise<SKUType> {
-    const sku = await this.prismaService.sKU.findUnique({
-      where: {
-        id: skuId,
-        deletedAt: null,
-      },
-      include: {
-        product: true,
-      },
-    });
+  private async validateSKU(props: {
+    skuId: SKUType['id'];
+    quantity: number;
+    userId: UserType['id'];
+    isCreate: boolean;
+  }): Promise<SKUType> {
+    const [cartItem, sku] = await Promise.all([
+      this.prismaService.cartItem.findUnique({
+        where: {
+          userId_skuId: {
+            userId: props.userId,
+            skuId: props.skuId,
+          },
+        },
+      }),
+      this.prismaService.sKU.findUnique({
+        where: {
+          id: props.skuId,
+          deletedAt: null,
+        },
+        include: {
+          product: true,
+        },
+      }),
+    ]);
 
     if (!sku) {
       throw SKUNotFoundException;
     }
 
-    if (sku.stock < 1 || sku.stock < quantity) {
+    if (props.isCreate && cartItem && props.quantity + cartItem.quantity > sku.stock) {
+      throw InvalidQuantityException;
+    }
+
+    if (sku.stock < 1 || sku.stock < props.quantity) {
       throw SKUOutOfStockException;
     }
 

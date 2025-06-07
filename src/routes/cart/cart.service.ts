@@ -23,9 +23,9 @@ export class CartService {
     return this.cartRepository.addToCart(body, userId);
   }
 
-  async updateCart(body: UpdateCartBodyType, cartItemId: CartItemType['id']) {
+  async updateCart(body: UpdateCartBodyType, cartItemId: CartItemType['id'], userId: UserType['id']) {
     try {
-      const cart = await this.cartRepository.updateCart(body, cartItemId);
+      const cart = await this.cartRepository.updateCart(body, cartItemId, userId);
 
       return cart;
     } catch (error) {
