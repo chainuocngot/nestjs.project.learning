@@ -24,9 +24,16 @@ import { ProductTranslationModule } from 'src/routes/product/product-translation
 import { CartModule } from 'src/routes/cart/cart.module';
 import { OrderModule } from './routes/order/order.module';
 import { PaymentModule } from './routes/payment/payment.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
