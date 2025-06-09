@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { randomInt } from 'crypto';
 import path from 'path';
+import { PaymentTransactionType } from 'src/shared/models/shared-payment.model';
 import { v4 as uuidv4 } from 'uuid';
 
 export const isUniqueConstrainPrismaError = (error: unknown): error is Prisma.PrismaClientKnownRequestError => {
@@ -26,4 +27,8 @@ export const generateOTP = () => {
 export const generateRandomFilename = (filename: string) => {
   const ext = path.extname(filename);
   return `${uuidv4()}${ext}`;
+};
+
+export const generateCancelPaymentJobId = (paymentId: PaymentTransactionType['id']) => {
+  return `paymentId-${paymentId}`;
 };

@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
-import { PaymentTransactionSchema, WebhookPaymentBodySchema } from 'src/routes/payment/payment.model';
+import { WebhookPaymentBodySchema } from 'src/routes/payment/payment.model';
+import { PaymentTransactionSchema } from 'src/shared/models/shared-payment.model';
 
 export class PaymentTransactionDTO extends createZodDto(PaymentTransactionSchema) {}
 

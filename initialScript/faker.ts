@@ -74,9 +74,9 @@ const fake = async () => {
     Array.from({ length: 20 }).map(async () => {
       const random = Math.random();
       let publishedAt: string | null = null;
-      if (random < 0.33) {
+      if (random < 0.1) {
         publishedAt = null; // 1/3 xác suất là null
-      } else if (random < 0.66) {
+      } else if (random < 0.8) {
         publishedAt = faker.date.past({ years: 2 }).toISOString(); // 1/3 xác suất là ngày trong quá khứ (2 năm trở lại)
       } else {
         publishedAt = faker.date.future({ years: 2 }).toISOString(); // 1/3 xác suất là ngày trong tương lai (2 năm tới)

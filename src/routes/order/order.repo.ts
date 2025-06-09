@@ -20,6 +20,7 @@ import { OrderStatus } from 'src/shared/constants/order.constant';
 import { PaymentStatus } from 'src/shared/constants/payment.constant';
 import { isNotFoundPrismaError } from 'src/shared/helpers';
 import { OrderType } from 'src/shared/models/shared-order.model';
+import { PaymentTransactionType } from 'src/shared/models/shared-payment.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
@@ -62,7 +63,13 @@ export class OrderRepository {
     };
   }
 
-  async create(body: CreateOrderBodyType, userId: UserType['id']): Promise<CreateOrderResType> {
+  async create(
+    body: CreateOrderBodyType,
+    userId: UserType['id'],
+  ): Promise<{
+    paymentId: PaymentTransactionType['id'];
+    orders: CreateOrderResType['data'];
+  }> {
     const allBodyCartItemIds = body.map((item) => item.cartItemIds).flat();
     const cartItems = await this.prismaService.cartItem.findMany({
       where: {
@@ -121,7 +128,7 @@ export class OrderRepository {
       throw SKUNotBelongToShopException;
     }
 
-    const orders = await this.prismaService.$transaction(async (tx) => {
+    const [paymentId, orders] = await this.prismaService.$transaction(async (tx) => {
       const payment = await tx.payment.create({
         data: {
           status: PaymentStatus.Pending,
@@ -198,12 +205,10 @@ export class OrderRepository {
 
       const [orders] = await Promise.all([$orders, $cartItem, $sku]);
 
-      return orders;
+      return [payment.id, orders];
     });
 
-    return {
-      data: orders,
-    };
+    return { paymentId, orders };
   }
 
   async findById(userId: UserType['id'], orderId: OrderType['id']): Promise<GetOrderDetailResType> {
