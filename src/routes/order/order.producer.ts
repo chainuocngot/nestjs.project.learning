@@ -7,11 +7,7 @@ import { PaymentTransactionType } from 'src/shared/models/shared-payment.model';
 
 @Injectable()
 export class OrderProducer {
-  constructor(@InjectQueue(PAYMENT_QUEUE_NAME) private paymentQueue: Queue) {
-    this.paymentQueue.getJobs().then((jobs) => {
-      console.log('jobs', jobs);
-    });
-  }
+  constructor(@InjectQueue(PAYMENT_QUEUE_NAME) private paymentQueue: Queue) {}
 
   async addCancelPaymentJob(paymentId: PaymentTransactionType['id']) {
     return this.paymentQueue.add(
@@ -20,7 +16,7 @@ export class OrderProducer {
         paymentId,
       },
       {
-        delay: 20 * 1000,
+        delay: 24 * 60 * 60 * 1000,
         jobId: generateCancelPaymentJobId(paymentId),
         removeOnComplete: true,
         removeOnFail: true,
