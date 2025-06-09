@@ -6,13 +6,18 @@ import { PREFIX_PAYMENT_CODE } from 'src/shared/constants/other.constant';
 import { PaymentStatus } from 'src/shared/constants/payment.constant';
 import { MessageResType } from 'src/shared/models/response.model';
 import { OrderWithProductSKUSnapshotType } from 'src/shared/models/shared-order.model';
+import { PaymentTransactionType } from 'src/shared/models/shared-payment.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
 @Injectable()
 export class PaymentRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async receiver(body: WebhookPaymentBodyType): Promise<MessageResType> {
+  async receiver(body: WebhookPaymentBodyType): Promise<
+    MessageResType & {
+      paymentId: PaymentTransactionType['id'];
+    }
+  > {
     let amountIn = 0;
     let amountOut = 0;
 
@@ -92,6 +97,7 @@ export class PaymentRepository {
     ]);
 
     return {
+      paymentId,
       message: 'Payment successfully',
     };
   }
