@@ -17,12 +17,7 @@ export class OrderService {
   }
 
   async create(body: CreateOrderBodyType, userId: UserType['id']) {
-    const result = await this.orderRepository.create(body, userId);
-    await this.orderProducer.addCancelPaymentJob(result.paymentId);
-
-    return {
-      data: result.orders,
-    };
+    return this.orderRepository.create(body, userId);
   }
 
   findById(userId: UserType['id'], orderId: OrderType['id']) {

@@ -16,17 +16,20 @@ import {
   GetOrdersQueryType,
   GetOrdersResType,
 } from 'src/routes/order/order.model';
+import { OrderProducer } from 'src/routes/order/order.producer';
 import { OrderStatus } from 'src/shared/constants/order.constant';
 import { PaymentStatus } from 'src/shared/constants/payment.constant';
 import { isNotFoundPrismaError } from 'src/shared/helpers';
 import { OrderType } from 'src/shared/models/shared-order.model';
-import { PaymentTransactionType } from 'src/shared/models/shared-payment.model';
 import { UserType } from 'src/shared/models/shared-user.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
 @Injectable()
 export class OrderRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly orderProducer: OrderProducer,
+  ) {}
 
   async list(queries: GetOrdersQueryType, userId: UserType['id']): Promise<GetOrdersResType> {
     const skip = queries.limit * (queries.page - 1);
@@ -63,13 +66,7 @@ export class OrderRepository {
     };
   }
 
-  async create(
-    body: CreateOrderBodyType,
-    userId: UserType['id'],
-  ): Promise<{
-    paymentId: PaymentTransactionType['id'];
-    orders: CreateOrderResType['data'];
-  }> {
+  async create(body: CreateOrderBodyType, userId: UserType['id']): Promise<CreateOrderResType> {
     const allBodyCartItemIds = body.map((item) => item.cartItemIds).flat();
     const cartItems = await this.prismaService.cartItem.findMany({
       where: {
@@ -128,7 +125,7 @@ export class OrderRepository {
       throw SKUNotBelongToShopException;
     }
 
-    const [paymentId, orders] = await this.prismaService.$transaction(async (tx) => {
+    const orders = await this.prismaService.$transaction(async (tx) => {
       const payment = await tx.payment.create({
         data: {
           status: PaymentStatus.Pending,
@@ -203,12 +200,15 @@ export class OrderRepository {
         ),
       );
 
-      const [orders] = await Promise.all([$orders, $cartItem, $sku]);
+      const $addCancelPaymentJob = this.orderProducer.addCancelPaymentJob(payment.id);
+      const [orders] = await Promise.all([$orders, $cartItem, $sku, $addCancelPaymentJob]);
 
-      return [payment.id, orders];
+      return orders;
     });
 
-    return { paymentId, orders };
+    return {
+      data: orders,
+    };
   }
 
   async findById(userId: UserType['id'], orderId: OrderType['id']): Promise<GetOrderDetailResType> {

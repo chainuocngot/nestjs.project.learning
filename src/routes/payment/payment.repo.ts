@@ -1,23 +1,22 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { parse } from 'date-fns';
 import { WebhookPaymentBodyType } from 'src/routes/payment/payment.model';
+import { PaymentProducer } from 'src/routes/payment/payment.producer';
 import { OrderStatus } from 'src/shared/constants/order.constant';
 import { PREFIX_PAYMENT_CODE } from 'src/shared/constants/other.constant';
 import { PaymentStatus } from 'src/shared/constants/payment.constant';
 import { MessageResType } from 'src/shared/models/response.model';
 import { OrderWithProductSKUSnapshotType } from 'src/shared/models/shared-order.model';
-import { PaymentTransactionType } from 'src/shared/models/shared-payment.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
 @Injectable()
 export class PaymentRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly paymentProducer: PaymentProducer,
+  ) {}
 
-  async receiver(body: WebhookPaymentBodyType): Promise<
-    MessageResType & {
-      paymentId: PaymentTransactionType['id'];
-    }
-  > {
+  async receiver(body: WebhookPaymentBodyType): Promise<MessageResType> {
     let amountIn = 0;
     let amountOut = 0;
 
@@ -27,77 +26,89 @@ export class PaymentRepository {
       amountOut = body.transferAmount;
     }
 
-    await this.prismaService.paymentTransaction.create({
-      data: {
-        gateway: body.gateway,
-        transactionDate: parse(body.transactionDate, 'yyyy-MM-dd HH:mm:ss', new Date()),
-        accountNumber: body.accountNumber,
-        subAccount: body.subAccount,
-        amountIn,
-        amountOut,
-        accumulated: body.accumulated,
-        code: body.code,
-        transactionContent: body.content,
-        referenceNumber: body.referenceCode,
-        body: body.description,
-      },
-    });
-
-    const paymentId = body.code
-      ? Number(body.code.split(PREFIX_PAYMENT_CODE)[1])
-      : Number(body.content?.split(PREFIX_PAYMENT_CODE)[1]);
-
-    if (isNaN(paymentId)) {
-      throw new BadRequestException('Cannot get payment id from content');
-    }
-
-    const payment = await this.prismaService.payment.findUnique({
+    const paymentTransaction = await this.prismaService.paymentTransaction.findUnique({
       where: {
-        id: paymentId,
-      },
-      include: {
-        orders: {
-          include: {
-            items: true,
-          },
-        },
+        id: body.id,
       },
     });
-
-    if (!payment) {
-      throw new BadRequestException(`Cannot find payment with id ${paymentId}`);
+    if (paymentTransaction) {
+      throw new BadRequestException('Transaction already exists');
     }
 
-    const { orders } = payment;
-    const totalPrice = this.getTotalPrice(orders);
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.paymentTransaction.create({
+        data: {
+          id: body.id,
+          gateway: body.gateway,
+          transactionDate: parse(body.transactionDate, 'yyyy-MM-dd HH:mm:ss', new Date()),
+          accountNumber: body.accountNumber,
+          subAccount: body.subAccount,
+          amountIn,
+          amountOut,
+          accumulated: body.accumulated,
+          code: body.code,
+          transactionContent: body.content,
+          referenceNumber: body.referenceCode,
+          body: body.description,
+        },
+      });
 
-    if (totalPrice !== body.transferAmount) {
-      throw new BadRequestException(`Price not match, expected ${totalPrice} but got ${body.transferAmount}`);
-    }
+      const paymentId = body.code
+        ? Number(body.code.split(PREFIX_PAYMENT_CODE)[1])
+        : Number(body.content?.split(PREFIX_PAYMENT_CODE)[1]);
 
-    await this.prismaService.$transaction([
-      this.prismaService.payment.update({
+      if (isNaN(paymentId)) {
+        throw new BadRequestException('Cannot get payment id from content');
+      }
+
+      const payment = await tx.payment.findUnique({
         where: {
           id: paymentId,
         },
-        data: {
-          status: PaymentStatus.Success,
-        },
-      }),
-      this.prismaService.order.updateMany({
-        where: {
-          id: {
-            in: orders.map((order) => order.id),
+        include: {
+          orders: {
+            include: {
+              items: true,
+            },
           },
         },
-        data: {
-          status: OrderStatus.PendingPickup,
-        },
-      }),
-    ]);
+      });
+
+      if (!payment) {
+        throw new BadRequestException(`Cannot find payment with id ${paymentId}`);
+      }
+
+      const { orders } = payment;
+      const totalPrice = this.getTotalPrice(orders);
+
+      if (totalPrice !== body.transferAmount) {
+        throw new BadRequestException(`Price not match, expected ${totalPrice} but got ${body.transferAmount}`);
+      }
+
+      await Promise.all([
+        tx.payment.update({
+          where: {
+            id: paymentId,
+          },
+          data: {
+            status: PaymentStatus.Success,
+          },
+        }),
+        tx.order.updateMany({
+          where: {
+            id: {
+              in: orders.map((order) => order.id),
+            },
+          },
+          data: {
+            status: OrderStatus.PendingPickup,
+          },
+        }),
+        this.paymentProducer.removeJob(paymentId),
+      ]);
+    });
 
     return {
-      paymentId,
       message: 'Payment successfully',
     };
   }
