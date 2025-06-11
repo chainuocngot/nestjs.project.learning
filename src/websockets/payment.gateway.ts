@@ -2,16 +2,16 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from
 import { Server } from 'socket.io';
 
 @WebSocketGateway({
-  namespace: 'chat',
+  namespace: 'payment',
 })
-export class ChatGateway {
+export class PaymentGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('send-message')
+  @SubscribeMessage('send-money')
   handleEvent(@MessageBody() data: string): string {
-    this.server.emit('receive-message', {
-      content: `Hello ${data}`,
+    this.server.emit('receive-money', {
+      content: `Money: ${data}`,
     });
     return data;
   }
